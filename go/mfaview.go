@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"mfaviewresource"
+	"time"
 )
 
 // Function to create table with hyperlink button and message
@@ -19,35 +20,43 @@ func messageTable(w http.ResponseWriter, urlPath string, buttonMessage string, d
 	fmt.Fprintf(w, "    <th><a href=\""+urlPath+"\" class=\"pageButton\">"+buttonMessage+"</a></th>")
 	fmt.Fprintf(w, "  </tr>")
 	fmt.Fprintf(w, "  <tr>")
-	fmt.Fprintf(w, "    <th>"+descriptionMessage+"&#11107</th>")
+	fmt.Fprintf(w, "    <th>"+descriptionMessage+"</th>")
 	fmt.Fprintf(w, "  </tr>")
 	fmt.Fprintf(w, "</table>")
 	fmt.Fprintf(w, "<br>")
 }
 
 // Function to add HTML form authentication input section
-func inputAuth(w http.ResponseWriter) {
-	fmt.Fprintf(w, "  <label for=\"email\"><b>Enter Email Address:</b>")
+func inputForm(w http.ResponseWriter, value string, labelMessage string, inputType string) {
+	fmt.Fprintf(w, "  <label for=\""+value+"\"><b>Enter "+labelMessage+":</b>")
 	fmt.Fprintf(w, "  </label><br>")
-	fmt.Fprintf(w, "  <input type=\"email\" id=\"email\" name=\"email\">")
-	fmt.Fprintf(w, "<br>")
-	fmt.Fprintf(w, "<br>")
-	fmt.Fprintf(w, "  <label for=\"password\"><b>Enter Password:</b>")
-	fmt.Fprintf(w, "  </label><br>")
-	fmt.Fprintf(w, "  <input type=\"password\" id=\"password\" name=\"password\">")
-	fmt.Fprintf(w, "<br>")
-	fmt.Fprintf(w, "<br>")
-	fmt.Fprintf(w, "  <label for=\"2FA\"><b>Enter 2FA Code:</b>")
-	fmt.Fprintf(w, "  </label><br>")
-	fmt.Fprintf(w, "  <input type=\"text\" id=\"2FA\" name=\"2FA\">")
+	fmt.Fprintf(w, "  <input type=\""+inputType+"\" id=\""+value+"\" name=\""+value+"\">")
 	fmt.Fprintf(w, "<br>")
 	fmt.Fprintf(w, "<br>")
 }
 
 // Function to validate user input
-func validateInput() {
-
-
+func validateInput(formValue string, valueType string, minNum string, maxNum string) (validation bool) {
+	validateInput := validator.New()
+	if valueType == "" {
+		validateInputErr := validateInput.Var(formValue, "required,min="+minNum+",max="+maxNum)
+		if validateInputErr != nil {
+			validation = false
+			return
+	        } else {
+	        	validation = true
+	        	return
+		}        
+	} else {
+		validateInputErr := validateInput.Var(formValue, valueType+",required,min="+minNum+",max="+maxNum)
+		if validateInputErr != nil {
+			validation = false
+			return
+	        } else {
+	        	validation = true
+	        	return
+		}
+	}
 }
 
 // Function to create red warning box around message argument
@@ -76,8 +85,8 @@ func main() {
 		panic("Error loading mfaview.env file")
 	}
 
-	email := os.Getenv("email")
-	password := os.Getenv("password")
+//	email := os.Getenv("email")
+//	password := os.Getenv("password")
 	address := os.Getenv("address")
 	port := os.Getenv("port")
 
@@ -100,46 +109,36 @@ func main() {
 		fmt.Fprintf(w, "    <th><a href=\"https://github.com/Ellwould/mfa-view\" class=\"tableButton\">MFA View Source Code (GitHub)</a></th>")
 		fmt.Fprintf(w, "  </tr>")
 		fmt.Fprintf(w, "</table>")
-		messageTable(w, "/add-mfa-account", "Click to add a new MFA account", "Enter email, password & 2FA to<br>generate MFA codes from key")
+		currentTime := time.Now().Format("15:04:05")
+		messageTable(w, "/add-mfa-account", "Click to add a new MFA account", "MFA code(s) expire on the minute<br>&#128347 & 30 seconds past a minute &#128353<br><br>Time at page load = "+currentTime+"<br><br>Enter email, password & 2FA to<br>generate MFA code(s) from key(s)")
 		fmt.Fprintf(w, "<br>")
 		fmt.Fprintf(w, "<div class=login>")
 		fmt.Fprintf(w, "<form method=\"POST\" action=\"/\">")
-		inputAuth(w)
+		inputForm(w, "email", "Email Address", "email",)
+		inputForm(w, "password", "Password", "password",)
+		inputForm(w, "2FA", "2FA Code", "text",)
 		fmt.Fprintf(w, "  <input type=\"submit\" value=\"Submit\">")
 		fmt.Fprintf(w, "</form>")
 		fmt.Fprintf(w, "</div")
 
-		//Get email address and validate
-		f1 := r.FormValue("email")
-		var inputEmail string
-		inputEmail = f1
-		validateInputEmail := validator.New()
-		validateInputEmailErr := validateInputEmail.Var(inputEmail, "email,required,max=100")
-
-		//Get password and validate
-		f2 := r.FormValue("password")
-		var inputPassword string
-		inputPassword = f2
-		validateInputPassword := validator.New()
-		validateInputPasswordErr := validateInputPassword.Var(inputPassword, "required,min=20,max=100")
-
-		//Get 2FA and validate
-		f3 := r.FormValue("2FA")
-		var input2fa string
-		input2fa = f3
-		validateInput2fa := validator.New()
-		validateInput2faErr := validateInput2fa.Var(input2fa, "number,required,min=6,max=6")
-
+		// Get email address, password and 2FA from HTTP POST
+		inputEmail := r.FormValue("email")
+		inputPassword := r.FormValue("password")
+		input2fa := r.FormValue("2FA")
+		
+		// Validate email address, password and 2FA
+		validationEmail := validateInput(inputEmail, "email", "6", "320")
+		validationPassword := validateInput(inputPassword, "", "20", "100")
+		validation2fa := validateInput(input2fa, "number", "6", "6")
+		
 		// Need to work on validation more
 		if inputEmail == "" && inputPassword == "" && input2fa == "" {
-		} else if validateInputEmailErr != nil {
+		} else if validationEmail == false {
 			textBox(w, "Please enter a valid email address, max 100 charecters length")
-		} else if validateInputPasswordErr != nil {
+		} else if validationPassword == false {
 			textBox(w, "Password needs to be between 20-100 charecters length")
-		} else if validateInput2faErr != nil {
+		} else if validation2fa == false {
 			textBox(w, "MFA code needs to be a 6 digit number")
-		} else if inputEmail == email && inputPassword == password && input2fa == "111111" {
-			textBox(w, "Correct Credentials Entered")
 		} else {
 			textBox(w, "Wrong Credentials Entered")
 		}
@@ -154,14 +153,49 @@ func main() {
 		endHTML = mfaviewresource.EndHTML()
 		
 		fmt.Fprintf(w, startHTML)
-		messageTable(w, "/", "Click to login & view MFA account(s)", "Enter email, password, 2FA,<br>algorithm, duration & MFA secret<br>below to add account")
+		messageTable(w, "/", "Click to login & view MFA account(s)", "Enter email, password, MFA account<br>name, MFA secret key, select SHA &<br>enter 2FA code to add a new account")
 		fmt.Fprintf(w, "<br>")
 		fmt.Fprintf(w, "<div class=login>")
 		fmt.Fprintf(w, "<form method=\"POST\" action=\"/add-mfa-account\">")
-		inputAuth(w)
+		inputForm(w, "email", "Email Address", "email",)
+		inputForm(w, "password", "Password", "password",)		
+		inputForm(w, "account", "New MFA Account Name", "text",)
+		inputForm(w, "MFA", "New MFA Secret Key", "text",)
+		fmt.Fprintf(w, "  <label for=\"sha\"><b>Secure Hash Algorithm (SHA):</b>")
+		fmt.Fprintf(w, "  </label><br>")
+		fmt.Fprintf(w, "  <select id=\"sha\" name=\"sha\">")
+		var shaArray = [3]string{"sha1", "sha256", "sha512"}				
+		for i := 0; i < len(shaArray); i++ {
+			fmt.Fprintf(w, "<option value="+shaArray[i]+">"+shaArray[i]+"</option>")
+		}
+		fmt.Fprintf(w, "  </select>")
+		fmt.Fprintf(w, "<br>")
+		fmt.Fprintf(w, "<br>")
+		inputForm(w, "2FA", "2FA Code", "text",)
 		fmt.Fprintf(w, "  <input type=\"submit\" value=\"Submit\">")
 		fmt.Fprintf(w, "</form>")
 		fmt.Fprintf(w, "</div")
+		
+		// Get email address, password and 2FA from HTTP POST
+                inputEmail := r.FormValue("email")
+                inputPassword := r.FormValue("password")
+                input2fa := r.FormValue("2FA")
+                
+                // Validate email address, password and 2FA
+                validationEmail := validateInput(inputEmail, "email", "6", "320")
+                validationPassword := validateInput(inputPassword, "", "20", "100")
+                validation2fa := validateInput(input2fa, "number", "6", "6")		
+
+                if inputEmail == "" && inputPassword == "" && input2fa == "" {
+                } else if validationEmail == false {
+                	textBox(w, "Please enter a valid email address, max 100 charecters length")
+		} else if validationPassword == false {
+		        textBox(w, "Password needs to be between 20-100 charecters length")
+		} else if validation2fa == false {
+                        textBox(w, "MFA code needs to be a 6 digit number")
+		} else {
+			textBox(w, "Wrong Credentials Entered")
+		}
 		fmt.Fprintf(w, endHTML)
 	})
 
