@@ -302,6 +302,7 @@ func main() {
 	
 	} else if envChangePassword == "yes" || envChangePassword == "Yes" || envChangePassword == "YES" {
 		changePasswordCli()
+	} else {
 
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
@@ -325,7 +326,7 @@ func main() {
 			currentTime := time.Now().Format("15:04:05")
 			messageTable(w, "/add-account", "Click to add a new MFA account", "MFA code(s) expire on the minute<br>&#128347 & 30 seconds past a minute &#128353<br><br>Time at page load = "+currentTime+"<br><br>Enter email, password & 2FA to<br>generate MFA code(s) from key(s)")
 			fmt.Fprintf(w, "<br>")
-			fmt.Fprintf(w, "<div class=login>")
+			fmt.Fprintf(w, "<div>")
 			fmt.Fprintf(w, "<form method=\"POST\" action=\"/\">")
 			inputForm(w, "email", "Email Address", "email")
 			inputForm(w, "password", "Password", "password")
@@ -375,7 +376,7 @@ func main() {
 				fmt.Fprintf(w, startHTML)
 				messageTable(w, "/", "Click to login & view MFA account(s)", "Enter email, password, MFA account<br>name, MFA secret key, select SHA &<br>enter 2FA code to add a new account")
 				fmt.Fprintf(w, "<br>")
-				fmt.Fprintf(w, "<div class=login>")
+				fmt.Fprintf(w, "<div>")
 				fmt.Fprintf(w, "<form method=\"POST\" action=\"/add-account\">")
 				inputForm(w, "email", "Email Address", "email")
 				inputForm(w, "password", "Password", "password")
