@@ -15,6 +15,9 @@ import (
 	"strconv"
 )
 
+// Variable for mfaview.env absolute path
+var mfaViewEnv string = "/usr/local/etc/mfaview/env/mfaview.env"
+
 // Variable for American National Standards Institute (ANSI) reset colour code
 var resetColour = "\033[0m"
 
@@ -175,7 +178,7 @@ func addEmailCli() {
 	clearScreen()
 	typeExitCli()
 	messageBoxCli(bgCyan, textBoldWhite, "Email address is required")
-        messageBoxCli(bgRed, textBoldWhite, "Email address can be manually changed later in /usr/local/etc/mfaview/env/mfaview.env")
+        messageBoxCli(bgRed, textBoldWhite, "Email address can be manually changed later in "+mfaViewEnv)
         fmt.Println(textBoldBlack)
         fmt.Printf("   Please enter an email address between 6-320\n   characters: ")
         var addEmail string
@@ -235,7 +238,7 @@ func add2faCli() {
 	fmt.Println(" □                                                                                                   □ ")
 	fmt.Println(" □                  MFA View aims to be as secure as possible, it requires another                   □ ")
 	fmt.Println(" □           authenticator app to provide a 2FA (Two-Factor Authentication) code to login.           □ ")
-	fmt.Println(" □    The 2FA secret key can be manually changed later in /usr/local/etc/mfaview/env/mfaview.env.    □ ")
+	fmt.Println(" □    The 2FA secret key can be manually changed later in "+mfaViewEnv+".    □ ")
 	fmt.Println(" □                                                                                                   □ ")
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(resetColour)
@@ -272,7 +275,7 @@ var endHTML string
 
 // Main function
 func main() {
-	err := godotenv.Load("/usr/local/etc/mfaview/env/mfaview.env")
+	err := godotenv.Load(mfaViewEnv)
 	if err != nil {
 		panic("Error loading mfaview.env file")
 	}
@@ -288,13 +291,13 @@ func main() {
 	
 	envPortInt, err := strconv.Atoi(envPort)
 	if err != nil {
-		invalidEnvCli("Port must be a number in /usr/local/etc/mfaview/mfaview.env")
+		invalidEnvCli("Port must be a number in "+mfaViewEnv)
 	}
 
 	if envEmail == "" && envPassword == "" {
 		createUserCli()
 	} else if validationEnvEmail == false {
-		invalidEnvCli("Email address stored in /usr/local/etc/mfaview.env is invalid")
+		invalidEnvCli("Email address stored in "+mfaViewEnv+" is invalid")
 	} else if envAddress == "" {
 		
 	
@@ -451,7 +454,8 @@ func main() {
 
 	// IP address and port number, value taken from mfaview.env
 	socket := envAddress + ":" + envPort
-	fmt.Println("MFA View is running on: " + socket)
+	messageBoxCli(bgGreen, textBoldWhite, "MFA View is running on " + socket)
+	fmt.Println("")
 
 	// Start server on port specified above
 	log.Fatal(http.ListenAndServe(socket, nil))
