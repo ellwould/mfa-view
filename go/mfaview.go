@@ -10,9 +10,10 @@ import (
 	"net/http"
 	"os"
 	"slices"
-	"time"
-	"strings"
 	"strconv"
+	"strings"
+	"time"
+	"bytes"
 )
 
 // Variable for mfaview.env absolute path
@@ -67,10 +68,10 @@ func validateInput(formValue string, valueType string) (validation bool) {
 	validateInput := validator.New()
 	// Conditional statments are used for each type of value inputted from a user
 	if valueType == "email" {
-                validateInputErr := validateInput.Var(formValue, "email,required,min=6,max=320")                
-                if validateInputErr != nil {
-                	validation = false
-                	return
+		validateInputErr := validateInput.Var(formValue, "email,required,min=6,max=320")
+		if validateInputErr != nil {
+			validation = false
+			return
 		} else {
 			validation = true
 			return
@@ -93,15 +94,15 @@ func validateInput(formValue string, valueType string) (validation bool) {
 			validation = true
 			return
 		}
-        } else if valueType == "text" {
-                validateInputErr := validateInput.Var(formValue, "required,min=10,max=200")
-                if validateInputErr != nil {
-                        validation = false
-                        return
-                } else {
-                        validation = true
-                        return
-                }
+	} else if valueType == "text" {
+		validateInputErr := validateInput.Var(formValue, "required,min=10,max=200")
+		if validateInputErr != nil {
+			validation = false
+			return
+		} else {
+			validation = true
+			return
+		}
 	} else {
 		validation = false
 		return
@@ -138,10 +139,10 @@ func genPasswd(passwd []byte) string {
 func messageBoxCli(bgColour string, messageColour string, message string) {
 	topBottomSquare := strings.Repeat(" □", (len(message)/2)+6)
 	inbetweenSpace := strings.Repeat(" ", len(message)+8)
- 	fmt.Println(bgColour + messageColour)
+	fmt.Println(bgColour + messageColour)
 	fmt.Println(topBottomSquare + " ")
 	fmt.Println(" □" + inbetweenSpace + "□ ")
-	fmt.Println(" □    "+message+"    □ ")
+	fmt.Println(" □    " + message + "    □ ")
 	fmt.Println(" □" + inbetweenSpace + "□ ")
 	fmt.Println(topBottomSquare + " ")
 	fmt.Print(resetColour)
@@ -165,7 +166,7 @@ func exitProgramCli() {
 func invalidInputCli() {
 	clearScreen()
 	messageBoxCli(bgRed, textBoldWhite, "Invalid input press enter/return to continue.")
-        fmt.Scanln()
+	fmt.Scanln()
 }
 
 // Function to inform the user to type exit to terminate the program
@@ -173,26 +174,41 @@ func typeExitCli() {
 	messageBoxCli(bgBlue, textBoldWhite, "(Type exit to quit program)")
 }
 
+// Function to replace strings in mfaview.conf
+func replaceText(oldText string, newText string) {
+	readFile, err := os.ReadFile(mfaViewEnv)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	writeFile := bytes.Replace(readFile, []byte(oldText), []byte(newText), -1)
+	if err = os.WriteFile(mfaViewEnv, writeFile, 0666); err != nil {
+		fmt.Println(err)
+		os.Exit(0)
+	}
+}
+
 // A recursive function to add a user email
 func addEmailCli() {
 	clearScreen()
 	typeExitCli()
 	messageBoxCli(bgCyan, textBoldWhite, "Email address is required")
-        messageBoxCli(bgRed, textBoldWhite, "Email address can be manually changed later in "+mfaViewEnv)
-        fmt.Println(textBoldBlack)
-        fmt.Printf("   Please enter an email address between 6-320\n   characters: ")
-        var addEmail string
-        fmt.Scan(&addEmail)
-        fmt.Println(resetColour)
-        validationAddEmail := validateInput(addEmail, "email")
+	messageBoxCli(bgRed, textBoldWhite, "Email address can be manually changed later in "+mfaViewEnv)
+	fmt.Println(textBoldBlack)
+	fmt.Printf("   Please enter an email address between 6-320\n   characters: ")
+	var addEmail string
+	fmt.Scan(&addEmail)
+	fmt.Println(resetColour)
+	validationAddEmail := validateInput(addEmail, "email")
 	if addEmail == "exit" || addEmail == "Exit" || addEmail == "EXIT" {
 		exitProgramCli()
 	} else if validationAddEmail == false {
 		invalidInputCli()
 		addEmailCli()
 	} else {
-		fmt.Println(addEmail)
-	}	
+		replaceText("email_not_set", addEmail)
+	}
 }
 
 // A recursive function to add a user password, a hashed and salted value of the password will be stored
@@ -214,18 +230,18 @@ func addPasswordCli() {
 	fmt.Printf("    Please enter a password between 20-100\n    characters: ")
 	var addPassword string
 	fmt.Scan(&addPassword)
-	fmt.Println(resetColour)        	
+	fmt.Println(resetColour)
 	validationAddPassword := validateInput(addPassword, "password")
 	if addPassword == "exit" || addPassword == "Exit" || addPassword == "EXIT" {
 		exitProgramCli()
 	} else if validationAddPassword == false {
 		invalidInputCli()
-		addPasswordCli()	
+		addPasswordCli()
 	} else {
-	// Test that will be replaced later
-	fmt.Println("okay")
+		hashedPassword := genPasswd([]byte(addPassword))
+		replaceText("password_not_set", hashedPassword)
 	}
-}	
+}
 
 // A recursive function to add a 2FA secret key, MFA View needs a username(email), password and 2FA code to login to view other 2FA/MFA codes
 // This function still needs work:
@@ -238,7 +254,7 @@ func add2faCli() {
 	fmt.Println(" □                                                                                                   □ ")
 	fmt.Println(" □                  MFA View aims to be as secure as possible, it requires another                   □ ")
 	fmt.Println(" □           authenticator app to provide a 2FA (Two-Factor Authentication) code to login.           □ ")
-	fmt.Println(" □    The 2FA secret key can be manually changed later in "+mfaViewEnv+".    □ ")
+	fmt.Println(" □    The 2FA secret key can be manually changed later in " + mfaViewEnv + ".    □ ")
 	fmt.Println(" □                                                                                                   □ ")
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(resetColour)
@@ -249,7 +265,7 @@ func add2faCli() {
 func createUserCli() {
 	addEmailCli()
 	addPasswordCli()
-	add2faCli()	
+	add2faCli()
 }
 
 // Recursive function to change an existing known password
@@ -288,21 +304,20 @@ func main() {
 	envAddAccount := os.Getenv("add_account")
 
 	validationEnvEmail := validateInput(envEmail, "email")
-	
+
 	envPortInt, err := strconv.Atoi(envPort)
 	if err != nil {
-		invalidEnvCli("Port must be a number in "+mfaViewEnv)
+		invalidEnvCli("Port must be a number in " + mfaViewEnv)
 	}
 
-	if envEmail == "" && envPassword == "" {
+	if envEmail == "email_not_set" && envPassword == "password_not_set" {
 		createUserCli()
 	} else if validationEnvEmail == false {
-		invalidEnvCli("Email address stored in "+mfaViewEnv+" is invalid")
+		invalidEnvCli("Email address stored in " + mfaViewEnv + " is invalid")
 	} else if envAddress == "" {
-		
-	
+
 	} else if envPortInt <= 0 || envPortInt >= 65536 {
-	
+
 	} else if envChangePassword == "yes" || envChangePassword == "Yes" || envChangePassword == "YES" {
 		changePasswordCli()
 	} else {
@@ -454,7 +469,7 @@ func main() {
 
 	// IP address and port number, value taken from mfaview.env
 	socket := envAddress + ":" + envPort
-	messageBoxCli(bgGreen, textBoldWhite, "MFA View is running on " + socket)
+	messageBoxCli(bgGreen, textBoldWhite, "MFA View is running on "+socket)
 	fmt.Println("")
 
 	// Start server on port specified above
