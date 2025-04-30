@@ -230,12 +230,22 @@ func addPasswordCli() {
 	fmt.Printf("    Please enter a password between 20-100\n    characters: ")
 	var addPassword string
 	fmt.Scan(&addPassword)
-	fmt.Println(resetColour)
 	validationAddPassword := validateInput(addPassword, "password")
+	fmt.Println("")
+	fmt.Printf("    Please re-enter the password: ")
+	var checkPassword string
+	fmt.Scan(&checkPassword)
+	validationCheckPassword := validateInput(checkPassword, "password")
+	fmt.Println(resetColour)
 	if addPassword == "exit" || addPassword == "Exit" || addPassword == "EXIT" {
 		exitProgramCli()
-	} else if validationAddPassword == false {
+	} else if validationAddPassword == false || validationCheckPassword == false {
 		invalidInputCli()
+		addPasswordCli()
+	} else if addPassword != checkPassword {
+		clearScreen()
+		messageBoxCli(bgRed, textBoldWhite, "Passwords entered do not match, press enter/return to continue.")
+		fmt.Scanln()
 		addPasswordCli()
 	} else {
 		hashedPassword := genPasswd([]byte(addPassword))
