@@ -109,6 +109,15 @@ func validateInput(formValue string, valueType string) (validation bool) {
 			validation = true
 			return
 		}
+	}  else if valueType == "IP" {
+		validateInputErr := validateInput.Var(formValue, "required,ip_addr")
+		if validateInputErr != nil {
+			validation = false
+			return
+		} else {
+			validation = true
+			return
+		}                
 	} else {
 		validation = false
 		return
@@ -253,6 +262,9 @@ func addPasswordCli() {
 	fmt.Printf("    Please enter a password between 20-100\n    characters: ")
 	var addPassword string
 	fmt.Scan(&addPassword)
+	if addPassword == "exit" || addPassword == "Exit" || addPassword == "EXIT" {
+		exitProgramCli()
+	}        
 	validationAddPassword := validateInput(addPassword, "password")
 	fmt.Println("")
 	fmt.Printf("    Please re-enter the password: ")
@@ -260,9 +272,7 @@ func addPasswordCli() {
 	fmt.Scan(&checkPassword)
 	validationCheckPassword := validateInput(checkPassword, "password")
 	fmt.Println(resetColour)
-	if addPassword == "exit" || addPassword == "Exit" || addPassword == "EXIT" {
-		exitProgramCli()
-	} else if validationAddPassword == false || validationCheckPassword == false {
+	if validationAddPassword == false || validationCheckPassword == false {
 		invalidInputCli()
 		addPasswordCli()
 	} else if addPassword != checkPassword {
@@ -320,7 +330,7 @@ func add2faCli() {
 		correct2faCode := totp.Validate(test2faCode, generated2faKey)
 		if correct2faCode {
 			clearScreen()
-			replaceText("2FA_key_not_set", generated2faKey)
+			replaceText("2fa_not_set", generated2faKey)
 			messageBoxCli(bgGreen, textBoldWhite, "Successfully added 2FA secret key")
 			os.Exit(0)
 		} else {
@@ -332,10 +342,16 @@ func add2faCli() {
 	}
 }
 
-// Basic function with no parameters to call the addEmailCli, addPasswordCli, add2faCli functions
+// Basic function with no parameters to call the addEmailCli, addPasswordCli and add2faCli functions
 func createUserCli() {
-	//addEmailCli()
-	//addPasswordCli()
+	addEmailCli()
+	addPasswordCli()
+	add2faCli()
+}
+
+// Basic function with no parameters to call the addPasswordCli and add2faCli functions
+func createPassword2faCli() {
+	addPasswordCli()
 	add2faCli()
 }
 
@@ -369,26 +385,34 @@ func main() {
 
 	envEmail := os.Getenv("email")
 	envPassword := os.Getenv("password")
+	env2faKey := os.Getenv("2fa_key")
 	envChangePassword := os.Getenv("change_password")
 	envAddress := os.Getenv("address")
 	envPort := os.Getenv("port")
-	envAddAccount := os.Getenv("add_account")
+	envAddAccount := os.Getenv("add_account_page")
 
 	validationEnvEmail := validateInput(envEmail, "email")
+	validationEnvAddress := validateInput(envAddress, "IP")
 
 	envPortInt, err := strconv.Atoi(envPort)
 	if err != nil {
 		invalidEnvCli("Port must be a number in " + mfaViewEnv)
 	}
 
-	if envEmail == "email_not_set" && envPassword == "password_not_set" {
+	if envEmail == "email_not_set" && envPassword == "password_not_set" && env2faKey == "2fa_not_set" {
 		createUserCli()
 	} else if validationEnvEmail == false {
 		invalidEnvCli("Email address stored in " + mfaViewEnv + " is invalid")
-	} else if envAddress == "" {
-
+	} else if validationEnvEmail == true && envPassword == "password_not_set" && env2faKey == "2fa_not_set" {
+		createPassword2faCli()
+	} else if env2faKey == "2fa_not_set" {
+		add2faCli()	
+	} else if envAddress != "localhost" {
+		if validationEnvAddress == false {
+			invalidEnvCli("Address in " + mfaViewEnv + " must be a valid Internet Protocol (IP) address or localhost")
+		}
 	} else if envPortInt <= 0 || envPortInt >= 65536 {
-
+		invalidEnvCli("Port number in " + mfaViewEnv + " must be between 1 and 35535")
 	} else if envChangePassword == "yes" || envChangePassword == "Yes" || envChangePassword == "YES" {
 		changePasswordCli()
 	} else {
