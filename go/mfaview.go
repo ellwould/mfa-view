@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
+	"github.com/mdp/qrterminal/v3"
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"mfaviewresource"
@@ -13,7 +17,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"bytes"
 )
 
 // Variable for mfaview.env absolute path
@@ -25,14 +28,17 @@ var resetColour = "\033[0m"
 // Variables for American National Standards Institute (ANSI) text colour codes
 var textBoldWhite = "\033[1;37m"
 var textBoldBlack = "\033[1;30m"
+var textBoldGreen = "\033[1;32m"
 
 // Variables for American National Standards Institute (ANSI) background colour codes
+var bgBlack = "\033[40m"
 var bgRed = "\033[41m"
 var bgGreen = "\033[42m"
 var bgYellow = "\033[43m"
 var bgBlue = "\033[44m"
 var bgPurple = "\033[45m"
 var bgCyan = "\033[46m"
+var bgWhite = "\033[47m"
 
 // Clear screen function for GNU/Linux OS's
 func clearScreen() {
@@ -189,6 +195,23 @@ func replaceText(oldText string, newText string) {
 	}
 }
 
+// Function to generate a 2FA key and URL
+func gen2faKey() (string, string) {
+	key, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      "MFA View Server",
+		AccountName: "MFA View Server Account",
+		Period:      30,
+		Digits:      otp.DigitsSix,
+		Algorithm:   otp.AlgorithmSHA1,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	return key.Secret(), key.URL()
+}
+
 // A recursive function to add a user email
 func addEmailCli() {
 	clearScreen()
@@ -254,12 +277,27 @@ func addPasswordCli() {
 }
 
 // A recursive function to add a 2FA secret key, MFA View needs a username(email), password and 2FA code to login to view other 2FA/MFA codes
-// This function still needs work:
 func add2faCli() {
 	clearScreen()
 	typeExitCli()
-	messageBoxCli(bgYellow, textBoldWhite, "Scan the QR (Quick Response) code with another authenticator app or copy the secret key to another authenticator app ")
-	fmt.Println(bgRed + textBoldWhite)
+	messageBoxCli(bgBlack, textBoldWhite, "Scan the QR (Quick Response) code with another authenticator app or copy the secret key to another authenticator app ")
+	fmt.Println("")
+	generated2faKey, generated2faUrl := gen2faKey()
+	qrConfig := qrterminal.Config{
+		Level:     qrterminal.L,
+		Writer:    os.Stdout,
+		BlackChar: qrterminal.WHITE,
+		WhiteChar: qrterminal.BLACK,
+		QuietZone: 0,
+	}
+	qrterminal.GenerateWithConfig(generated2faUrl, qrConfig)
+	fmt.Println(bgBlack + textBoldWhite)
+	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
+	fmt.Println(" □                                                       □ ")
+	fmt.Println(" □    Secret Key: " + resetColour + bgWhite + textBoldBlack + " " + generated2faKey + " " + resetColour + bgBlack + textBoldWhite + "     □ ")
+	fmt.Println(" □                                                       □ ")
+	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
+	fmt.Println(resetColour + bgRed + textBoldWhite)
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(" □                                                                                                   □ ")
 	fmt.Println(" □                  MFA View aims to be as secure as possible, it requires another                   □ ")
@@ -267,14 +305,37 @@ func add2faCli() {
 	fmt.Println(" □    The 2FA secret key can be manually changed later in " + mfaViewEnv + ".    □ ")
 	fmt.Println(" □                                                                                                   □ ")
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
-	fmt.Println(resetColour)
-	fmt.Scan()
+	fmt.Println(resetColour + textBoldBlack)
+	fmt.Printf("      Please enter the 6 digit generated\n      code from the your other 2FA/MFA app: ")
+	var test2faCode string
+	fmt.Scan(&test2faCode)
+	validationTest2faCode := validateInput(test2faCode, "2FA")
+	fmt.Println("")
+	if test2faCode == "exit" || test2faCode == "Exit" || test2faCode == "EXIT" {
+		exitProgramCli()
+	} else if validationTest2faCode == false {
+		invalidInputCli()
+		add2faCli()
+	} else {
+		correct2faCode := totp.Validate(test2faCode, generated2faKey)
+		if correct2faCode {
+			clearScreen()
+			replaceText("2FA_key_not_set", generated2faKey)
+			messageBoxCli(bgGreen, textBoldWhite, "Successfully added 2FA secret key")
+			os.Exit(0)
+		} else {
+			clearScreen()
+			messageBoxCli(bgRed, textBoldWhite, "2FA code entered is incorrect, press enter/return to continue")
+			fmt.Scanln()                
+			add2faCli()
+		}
+	}
 }
 
 // Basic function with no parameters to call the addEmailCli, addPasswordCli, add2faCli functions
 func createUserCli() {
-	addEmailCli()
-	addPasswordCli()
+	//addEmailCli()
+	//addPasswordCli()
 	add2faCli()
 }
 
