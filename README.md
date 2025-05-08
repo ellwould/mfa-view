@@ -42,7 +42,7 @@ A Go HTTP program to generate MFA codes from a stored secret key and can also ad
 
 ### Adding the secret key to a 3rd party application:
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/adding_2FA_secret_key_to_authenticator_app.jpg)
+![image](https://github.com/Ellwould/mfa-view/blob/main/image/adding_2FA_secret_key_to_3rd_party_authenticator_app.jpg)
 
 ### 3rd party application generating 2FA code:
 
