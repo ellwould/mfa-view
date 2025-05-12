@@ -19,26 +19,34 @@ import (
 	"time"
 )
 
-// Variable for mfaview.env absolute path
-var mfaViewEnv string = "/usr/local/etc/mfaview/env/mfaview.env"
+// Constant for mfaview.env absolute path
+const mfaViewEnv string = "/usr/local/etc/mfaview/env/mfaview.env"
+
+// Constant for path to key.txt
+//const mfaViewKey string = "/usr/local/etc/mfaview/key"
 
 // Variable for American National Standards Institute (ANSI) reset colour code
-var resetColour = "\033[0m"
+const resetColour string = "\033[0m"
 
 // Variables for American National Standards Institute (ANSI) text colour codes
-var textBoldWhite = "\033[1;37m"
-var textBoldBlack = "\033[1;30m"
-var textBoldGreen = "\033[1;32m"
+const (
+	textBoldWhite string = "\033[1;37m"
+	textBoldBlack string = "\033[1;30m"
+	textBoldGreen string = "\033[1;32m"
+)
 
 // Variables for American National Standards Institute (ANSI) background colour codes
-var bgBlack = "\033[40m"
-var bgRed = "\033[41m"
-var bgGreen = "\033[42m"
-var bgYellow = "\033[43m"
-var bgBlue = "\033[44m"
-var bgPurple = "\033[45m"
-var bgCyan = "\033[46m"
-var bgWhite = "\033[47m"
+
+const (
+	bgBlack  string = "\033[40m"
+	bgRed    string = "\033[41m"
+	bgGreen  string = "\033[42m"
+	bgYellow string = "\033[43m"
+	bgBlue   string = "\033[44m"
+	bgPurple string = "\033[45m"
+	bgCyan   string = "\033[46m"
+	bgWhite  string = "\033[47m"
+)
 
 // Clear screen function for GNU/Linux OS's
 func clearScreen() {
@@ -83,7 +91,7 @@ func validateInput(formValue string, valueType string) (validation bool) {
 			return
 		}
 	} else if valueType == "password" {
-		validateInputErr := validateInput.Var(formValue, "required,min=20,max=100")
+		validateInputErr := validateInput.Var(formValue, "required,min=16,max=100")
 		if validateInputErr != nil {
 			validation = false
 			return
@@ -109,7 +117,7 @@ func validateInput(formValue string, valueType string) (validation bool) {
 			validation = true
 			return
 		}
-	}  else if valueType == "IP" {
+	} else if valueType == "IP" {
 		validateInputErr := validateInput.Var(formValue, "required,ip_addr")
 		if validateInputErr != nil {
 			validation = false
@@ -117,7 +125,7 @@ func validateInput(formValue string, valueType string) (validation bool) {
 		} else {
 			validation = true
 			return
-		}                
+		}
 	} else {
 		validation = false
 		return
@@ -259,12 +267,12 @@ func addPasswordCli() {
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Print(resetColour)
 	fmt.Println(textBoldBlack)
-	fmt.Printf("    Please enter a password between 20-100\n    characters: ")
+	fmt.Printf("    Please enter a password between 16-100\n    characters: ")
 	var addPassword string
 	fmt.Scan(&addPassword)
 	if addPassword == "exit" || addPassword == "Exit" || addPassword == "EXIT" {
 		exitProgramCli()
-	}        
+	}
 	validationAddPassword := validateInput(addPassword, "password")
 	fmt.Println("")
 	fmt.Printf("    Please re-enter the password: ")
@@ -336,7 +344,7 @@ func add2faCli() {
 		} else {
 			clearScreen()
 			messageBoxCli(bgRed, textBoldWhite, "2FA code entered is incorrect, press enter/return to continue")
-			fmt.Scanln()                
+			fmt.Scanln()
 			add2faCli()
 		}
 	}
@@ -406,7 +414,7 @@ func main() {
 	} else if validationEnvEmail == true && envPassword == "password_not_set" && env2faKey == "2fa_not_set" {
 		createPassword2faCli()
 	} else if env2faKey == "2fa_not_set" {
-		add2faCli()	
+		add2faCli()
 	} else if envAddress != "localhost" {
 		if validationEnvAddress == false {
 			invalidEnvCli("Address in " + mfaViewEnv + " must be a valid Internet Protocol (IP) address or localhost")
@@ -461,9 +469,9 @@ func main() {
 			// Conditional statement to validate input
 			if inputEmail == "" && inputPassword == "" && input2fa == "" {
 			} else if validationEmail == false {
-				textBox(w, "Please enter a valid email address, max 100 charecters length")
+				textBox(w, "Please enter a valid email address, max 320 charecters length")
 			} else if validationPassword == false {
-				textBox(w, "Password needs to be between 20-100 charecters length")
+				textBox(w, "Password needs to be between 16-100 charecters length")
 			} else if validation2fa == false {
 				textBox(w, "MFA code needs to be a 6 digit number")
 			} else {
@@ -529,9 +537,9 @@ func main() {
 				// Conditional statement to validate input
 				if inputEmail == "" && inputPassword == "" && inputAccount == "" && inputMfa == "" && inputSha == "" && input2fa == "" {
 				} else if validationEmail == false {
-					textBox(w, "Please enter a valid email address, max 100 charecters length")
+					textBox(w, "Please enter a valid email address, max 320 charecters length")
 				} else if validationPassword == false {
-					textBox(w, "Password needs to be between 20-100 charecters length")
+					textBox(w, "Password needs to be between 16-100 charecters length")
 				} else if validationAccount == false {
 					textBox(w, "Please enter a valid account name, max 100 charecters length")
 				} else if validationMfa == false {
