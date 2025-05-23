@@ -56,9 +56,10 @@ A Go HTTP program to generate MFA codes from a stored secret key and can also ad
 
 ![image](https://github.com/Ellwould/mfa-view/blob/main/image/example_configuration_file.jpg)
 
----
+<br>
 
-For a list of abbreviations and there meanings used throughout this repository please refer to the README at: https://github.com/Ellwould/information_technology_and_telecommunication_abbreviations
+>[!NOTE]
+>For a list of abbreviations and there meanings used throughout this repository please refer to this [README](https://github.com/Ellwould/information_technology_and_telecommunication_abbreviations)
 
 ---
 
