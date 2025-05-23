@@ -1,4 +1,4 @@
-# mfa-view
+# MFA View
 
 ## (IN DEVELOPMENT)
 
