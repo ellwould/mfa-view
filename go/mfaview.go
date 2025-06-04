@@ -198,6 +198,15 @@ func genPasswd(passwd []byte) string {
 	return string(hashAndSalt)
 }
 
+func comparePasswd(passwd []byte, hashedPasswd []byte) bool {
+	result := bcrypt.CompareHashAndPassword(hashedPasswd, passwd)
+	if result == nil {
+		return true
+	} else {
+		return false
+	}
+}
+
 // Function to draw box with squares around message, must have a message with characters that total a odd number
 func messageBoxCli(bgColour string, messageColour string, message string) {
 	topBottomSquare := strings.Repeat(" □", (len(message)/2)+6)
@@ -516,11 +525,17 @@ func main() {
 				textBox(w, "Password needs to be between 16-32 charecters length")
 			} else if validation2fa == false {
 				textBox(w, "MFA code needs to be a 6 digit number")
+			} else if inputEmail == envEmail {
+				correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
+				correct2fa := totp.Validate(input2fa, env2faKey)
+				if correctPasswd == true && correct2fa == true {
+					//test
+					textBox(w, "Correct Credentials")
+				} else {
+					textBox(w, "Wrong Credentials Entered")
+				}
 			} else {
 				textBox(w, "Wrong Credentials Entered")
-				// Testing genPassword function
-				p := genPasswd([]byte("p"))
-				textBox(w, p)
 			}
 			fmt.Fprint(w, endHTML)
 		})
@@ -588,6 +603,15 @@ func main() {
 					textBox(w, "Secure Hash Algorithm can be sha1, sha256 or sha512")
 				} else if validation2fa == false {
 					textBox(w, "2FA code needs to be a 6 digit number")
+				} else if inputEmail == envEmail {
+					correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
+					correct2fa := totp.Validate(input2fa, env2faKey)
+					if correctPasswd == true && correct2fa == true {
+						//test
+						textBox(w, "Correct Credentials")
+					} else {
+						textBox(w, "Wrong Credentials Entered")
+					}
 				} else {
 					textBox(w, "Wrong Credentials Entered")
 				}
