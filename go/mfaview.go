@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/go-playground/validator/v10"
@@ -10,7 +11,6 @@ import (
 	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
 	"log"
-	"mfaviewresource"
 	"net/http"
 	"os"
 	"slices"
@@ -23,7 +23,7 @@ import (
 const mfaViewEnv string = "/usr/local/etc/mfaview/env/mfaview.env"
 
 // Constant for path to key.txt
-//const mfaViewKey string = "/usr/local/etc/mfaview/key"
+const mfaViewKey string = "/usr/local/etc/mfaview/key"
 
 // Variable for American National Standards Institute (ANSI) reset colour code
 const resetColour string = "\033[0m"
@@ -51,6 +51,39 @@ const (
 // Clear screen function for GNU/Linux OS's
 func clearScreen() {
 	fmt.Print("\033[H\033[2J")
+}
+
+// Function to retrieve file contents
+func getFile(rootDirPath string, fileName string) (result string) {
+
+	// Go introduced OpenRoot in version 1.24, it restricts file operations to a single directory
+	rootDir, err := os.OpenRoot(rootDirPath)
+
+	if err != nil {
+		panic("Directory path does not exist")
+	}
+
+	defer rootDir.Close()
+
+	file, err := rootDir.Open(fileName)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	var fileSlice []string
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		fileSlice = append(fileSlice, line)
+	}
+
+	result = strings.Join(fileSlice, "")
+	return result
 }
 
 // Function to create table with hyperlink button and message
@@ -91,7 +124,7 @@ func validateInput(formValue string, valueType string) (validation bool) {
 			return
 		}
 	} else if valueType == "password" {
-		validateInputErr := validateInput.Var(formValue, "required,min=16,max=100")
+		validateInputErr := validateInput.Var(formValue, "required,min=16,max=32")
 		if validateInputErr != nil {
 			validation = false
 			return
@@ -147,6 +180,13 @@ func textBox(w http.ResponseWriter, textBoxMessage string) {
 	fmt.Fprintf(w, "</div>")
 	fmt.Fprintf(w, "<br>")
 	fmt.Fprintf(w, "<br>")
+}
+
+// Function to pad out password with 0's for length between 16 and 32 characters
+func zeroPad(passwd string) string {
+	zeroQuantity := 32 - len(passwd)
+	newPasswd := passwd + strings.Repeat("0", zeroQuantity)
+	return newPasswd
 }
 
 // Function to generate new hash and salted password using Bcrypt
@@ -267,7 +307,7 @@ func addPasswordCli() {
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Print(resetColour)
 	fmt.Println(textBoldBlack)
-	fmt.Printf("    Please enter a password between 16-100\n    characters: ")
+	fmt.Printf("    Please enter a password between 16-32\n    characters: ")
 	var addPassword string
 	fmt.Scan(&addPassword)
 	if addPassword == "exit" || addPassword == "Exit" || addPassword == "EXIT" {
@@ -289,7 +329,8 @@ func addPasswordCli() {
 		fmt.Scanln()
 		addPasswordCli()
 	} else {
-		hashedPassword := genPasswd([]byte(addPassword))
+		paddedPassword := zeroPad(addPassword)
+		hashedPassword := genPasswd([]byte(paddedPassword))
 		replaceText("password_not_set", hashedPassword)
 	}
 }
@@ -386,6 +427,9 @@ var endHTML string
 
 // Main function
 func main() {
+	startHTML = getFile("/usr/local/etc/mfaview/html/", "mfaview-start.html")
+	endHTML = getFile("/usr/local/etc/mfaview/html/", "mfaview-end.html")
+
 	err := godotenv.Load(mfaViewEnv)
 	if err != nil {
 		panic("Error loading mfaview.env file")
@@ -430,8 +474,6 @@ func main() {
 			if err := r.ParseForm(); err != nil {
 				fmt.Fprintf(w, "ParseForm() err: %v", err)
 			}
-			startHTML = mfaviewresource.StartHTML()
-			endHTML = mfaviewresource.EndHTML()
 
 			fmt.Fprintf(w, startHTML)
 			fmt.Fprintf(w, "<br>")
@@ -471,7 +513,7 @@ func main() {
 			} else if validationEmail == false {
 				textBox(w, "Please enter a valid email address, max 320 charecters length")
 			} else if validationPassword == false {
-				textBox(w, "Password needs to be between 16-100 charecters length")
+				textBox(w, "Password needs to be between 16-32 charecters length")
 			} else if validation2fa == false {
 				textBox(w, "MFA code needs to be a 6 digit number")
 			} else {
@@ -491,8 +533,6 @@ func main() {
 				if err := r.ParseForm(); err != nil {
 					fmt.Fprintf(w, "ParseForm() err: %v", err)
 				}
-				startHTML = mfaviewresource.StartHTML()
-				endHTML = mfaviewresource.EndHTML()
 
 				fmt.Fprintf(w, startHTML)
 				messageTable(w, "/", "Click to login & view MFA account(s)", "Enter email, password, MFA account<br>name, MFA secret key, select SHA &<br>enter 2FA code to add a new account")
@@ -539,7 +579,7 @@ func main() {
 				} else if validationEmail == false {
 					textBox(w, "Please enter a valid email address, max 320 charecters length")
 				} else if validationPassword == false {
-					textBox(w, "Password needs to be between 16-100 charecters length")
+					textBox(w, "Password needs to be between 16-32 charecters length")
 				} else if validationAccount == false {
 					textBox(w, "Please enter a valid account name, max 100 charecters length")
 				} else if validationMfa == false {
@@ -560,8 +600,6 @@ func main() {
 				if err := r.ParseForm(); err != nil {
 					fmt.Fprintf(w, "ParseForm() err: %v", err)
 				}
-				startHTML = mfaviewresource.StartHTML()
-				endHTML = mfaviewresource.EndHTML()
 
 				fmt.Fprintf(w, startHTML)
 				messageTable(w, "/", "Click to login & view MFA account(s)", "Adding a new MFA account is<br>switched off in the configuration file")
