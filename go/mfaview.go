@@ -17,13 +17,27 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"github.com/ellwould/csvcell"
+	"github.com/ellwould/aestext"
 )
 
 // Constant for mfaview.env absolute path
 const mfaViewEnv string = "/usr/local/etc/mfaview/env/mfaview.env"
 
-// Constant for path to key.txt
-const mfaViewKey string = "/usr/local/etc/mfaview/key"
+// Constant for directory path that contains the file key.csv
+const dirKeyCSV string = "/usr/local/etc/mfaview/key"
+
+// Constant for key.csv file
+const fileKeyCSV string = "key.csv"
+
+// Constant for directory path that contains the files mfaview-start.html and mfaview-end.html
+const dirHTML string = "/usr/local/etc/mfaview/html"
+
+// Constant for fileStartHTML file
+const fileStartHTML string = "mfaview-start.html"
+
+// Constant for fileEndHTML file
+const fileEndHTML string = "mfaview-end.html"
 
 // Variable for American National Standards Institute (ANSI) reset colour code
 const resetColour string = "\033[0m"
@@ -430,14 +444,30 @@ func changePasswordCli() {
 	fmt.Println(resetColour)
 }
 
+// Function to generate passcode from MFA secret key
+func readMFA(key string, sha otp.Algorithm) (passcode string) {
+	passcode, err := totp.GenerateCodeCustom(key, time.Now(), totp.ValidateOpts{
+		Period:    30,
+		Skew:      1,
+		Digits:    otp.DigitsSix,
+		Algorithm: sha,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	return passcode
+}
+
 // Declare two string variables for HTML
 var startHTML string
 var endHTML string
 
 // Main function
 func main() {
-	startHTML = getFile("/usr/local/etc/mfaview/html/", "mfaview-start.html")
-	endHTML = getFile("/usr/local/etc/mfaview/html/", "mfaview-end.html")
+	startHTML = getFile(dirHTML, fileStartHTML)
+	endHTML = getFile(dirHTML, fileEndHTML)
 
 	err := godotenv.Load(mfaViewEnv)
 	if err != nil {
@@ -529,8 +559,37 @@ func main() {
 				correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
 				correct2fa := totp.Validate(input2fa, env2faKey)
 				if correctPasswd == true && correct2fa == true {
-					//test
-					textBox(w, "Correct Credentials")
+					fmt.Fprintf(w, "<br>")
+					fmt.Fprintf(w, "<br>")
+					fmt.Fprintf(w, "<table>")
+					fmt.Fprintf(w, "  <tr>")
+					fmt.Fprintf(w, "    <th class=accountNameTitleColor>Account Name</th>")
+					fmt.Fprintf(w, "    <th class=dateAddedTitleColor>Date Added</th>")
+					fmt.Fprintf(w, "    <th class=sha1TitleColor>SHA1 Code<br>(Default)</th>")
+					fmt.Fprintf(w, "    <th class=sha256TitleColor>SHA256 Code</th>")
+					fmt.Fprintf(w, "    <th class=sha512TitleColor>SHA512 Code</th>")
+					fmt.Fprintf(w, "  </tr>")
+					
+					// Read key.csv file
+					readKeyCSV := csvcell.ReadCSV(dirKeyCSV, fileKeyCSV)
+					for _, readKeyCSV := range readKeyCSV {
+						accountName := strings.Join((readKeyCSV[0:][0:1]), ", ")
+						dateAdded := strings.Join((readKeyCSV[0:][1:2]), ", ")
+						decryptedKey := aestext.DecText(strings.Join((readKeyCSV[0:][2:3]), ", "), zeroPad(inputPassword))
+						sha1 := readMFA(decryptedKey, otp.AlgorithmSHA1)
+						sha256 := readMFA(decryptedKey, otp.AlgorithmSHA256)
+						sha512 := readMFA(decryptedKey, otp.AlgorithmSHA512)
+						fmt.Fprintf(w, "  <tr>")
+						fmt.Fprintf(w, "    <td class=accountNameValueColor>"+accountName+"</td>")
+						fmt.Fprintf(w, "    <td class=dateAddedValueColor>"+dateAdded+"</td>")
+						fmt.Fprintf(w, "    <td class=sha1CodeColor>"+sha1+"</td>")
+						fmt.Fprintf(w, "    <td class=sha256CodeColor>"+sha256+"</td>")
+						fmt.Fprintf(w, "    <td class=sha512CodeColor>"+sha512+"</td>")
+						fmt.Fprintf(w, "  </tr>")
+				        }
+				        fmt.Fprintf(w, "</table>")				        
+				        fmt.Fprintf(w, "<br>")
+				        fmt.Fprintf(w, "<br>")
 				} else {
 					textBox(w, "Wrong Credentials Entered")
 				}
