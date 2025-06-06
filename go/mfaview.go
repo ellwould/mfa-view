@@ -181,8 +181,6 @@ func validateInput(formValue string, valueType string) (validation bool) {
 
 // Function to create red warning box around message argument
 func textBox(w http.ResponseWriter, textBoxMessage string) {
-	fmt.Fprintf(w, "<br>")
-	fmt.Fprintf(w, "<br>")
 	fmt.Fprintf(w, "<div class=leftToCentre>")
 	fmt.Fprintf(w, "  <table class=errorTableColor>")
 	fmt.Fprintf(w, "    <tr>")
@@ -536,7 +534,10 @@ func main() {
 			fmt.Fprintf(w, "  <input type=\"submit\" value=\"Submit\">")
 			fmt.Fprintf(w, "</form>")
 			fmt.Fprintf(w, "</div")
-
+			fmt.Fprintf(w, "<br>")
+                        fmt.Fprintf(w, "<br>")
+                        fmt.Fprintf(w, "<br>")
+                        
 			// Get email address, password and 2FA from HTTP POST
 			inputEmail := r.FormValue("email")
 			inputPassword := r.FormValue("password")
@@ -559,32 +560,45 @@ func main() {
 				correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
 				correct2fa := totp.Validate(input2fa, env2faKey)
 				if correctPasswd == true && correct2fa == true {
-					fmt.Fprintf(w, "<br>")
-					fmt.Fprintf(w, "<br>")
+					//fmt.Fprintf(w, "<br>")
 					fmt.Fprintf(w, "<table>")
 					fmt.Fprintf(w, "  <tr>")
 					fmt.Fprintf(w, "    <th class=accountNameTitleColor>Account Name</th>")
-					fmt.Fprintf(w, "    <th class=dateAddedTitleColor>Date Added</th>")
 					fmt.Fprintf(w, "    <th class=sha1TitleColor>SHA1 Code<br>(Default)</th>")
 					fmt.Fprintf(w, "    <th class=sha256TitleColor>SHA256 Code</th>")
 					fmt.Fprintf(w, "    <th class=sha512TitleColor>SHA512 Code</th>")
+					fmt.Fprintf(w, "    <th class=dateAddedTitleColor>Date Added</th>")
 					fmt.Fprintf(w, "  </tr>")
 					
 					// Read key.csv file
 					readKeyCSV := csvcell.ReadCSV(dirKeyCSV, fileKeyCSV)
 					for _, readKeyCSV := range readKeyCSV {
 						accountName := strings.Join((readKeyCSV[0:][0:1]), ", ")
-						dateAdded := strings.Join((readKeyCSV[0:][1:2]), ", ")
-						decryptedKey := aestext.DecText(strings.Join((readKeyCSV[0:][2:3]), ", "), zeroPad(inputPassword))
-						sha1 := readMFA(decryptedKey, otp.AlgorithmSHA1)
-						sha256 := readMFA(decryptedKey, otp.AlgorithmSHA256)
-						sha512 := readMFA(decryptedKey, otp.AlgorithmSHA512)
+						decryptedKey := aestext.DecText(strings.Join((readKeyCSV[0:][1:2]), ", "), zeroPad(inputPassword))
+						sha := strings.Join((readKeyCSV[0:][2:3]), ", ")
+						dateAdded := strings.Join((readKeyCSV[0:][3:4]), ", ")
+						
 						fmt.Fprintf(w, "  <tr>")
-						fmt.Fprintf(w, "    <td class=accountNameValueColor>"+accountName+"</td>")
+						fmt.Fprintf(w, "    <td class=accountNameValueColor><b>"+accountName+"</b></td>")
+						if sha == "SHA1" {
+							sha1 := readMFA(decryptedKey, otp.AlgorithmSHA1)
+							fmt.Fprintf(w, "    <td class=sha1CodeColor><b>"+sha1+"</b></td>")
+						} else {
+							fmt.Fprintf(w, "    <td class=sha1CodeColor><b>&#9473&#9473</b></td>")
+						}
+						if sha == "SHA256" {
+							sha256 := readMFA(decryptedKey, otp.AlgorithmSHA256)
+							fmt.Fprintf(w, "    <td class=sha256CodeColor><b>"+sha256+"</b></td>")
+						} else {
+							fmt.Fprintf(w, "    <td class=sha256CodeColor><b>&#9473&#9473</b></td>")
+						}
+						if sha == "SHA512" {
+							sha512 := readMFA(decryptedKey, otp.AlgorithmSHA512)
+							fmt.Fprintf(w, "    <td class=sha512CodeColor><b>"+sha512+"</b></td>")
+						} else {
+							fmt.Fprintf(w, "    <td class=sha512CodeColor><b>&#9473&#9473</b></td>")
+						}
 						fmt.Fprintf(w, "    <td class=dateAddedValueColor>"+dateAdded+"</td>")
-						fmt.Fprintf(w, "    <td class=sha1CodeColor>"+sha1+"</td>")
-						fmt.Fprintf(w, "    <td class=sha256CodeColor>"+sha256+"</td>")
-						fmt.Fprintf(w, "    <td class=sha512CodeColor>"+sha512+"</td>")
 						fmt.Fprintf(w, "  </tr>")
 				        }
 				        fmt.Fprintf(w, "</table>")				        
@@ -617,10 +631,10 @@ func main() {
 				inputForm(w, "password", "Password", "password")
 				inputForm(w, "account", "New MFA Account Name", "text")
 				inputForm(w, "MFA", "New MFA Secret Key", "text")
-				fmt.Fprintf(w, "  <label for=\"sha\"><b>Secure Hash Algorithm (SHA):</b>")
+				fmt.Fprintf(w, "  <label for=\"SHA\"><b>Secure Hash Algorithm (SHA):<br>(SHA1 is Default)</b>")
 				fmt.Fprintf(w, "  </label><br>")
-				fmt.Fprintf(w, "  <select id=\"sha\" name=\"sha\">")
-				var shaList = []string{"sha1", "sha256", "sha512"}
+				fmt.Fprintf(w, "  <select id=\"SHA\" name=\"SHA\">")
+				var shaList = []string{"SHA1", "SHA256", "SHA512"}
 				for i := 0; i < len(shaList); i++ {
 					fmt.Fprintf(w, "<option value="+shaList[i]+">"+shaList[i]+"</option>")
 				}
@@ -631,13 +645,16 @@ func main() {
 				fmt.Fprintf(w, "  <input type=\"submit\" value=\"Submit\">")
 				fmt.Fprintf(w, "</form>")
 				fmt.Fprintf(w, "</div")
+				fmt.Fprintf(w, "<br>")
+                                fmt.Fprintf(w, "<br>")
+                                fmt.Fprintf(w, "<br>")
 
 				// Get email address, password, MFA account name, MFA secret key, SHA type and 2FA from HTTP POST
 				inputEmail := r.FormValue("email")
 				inputPassword := r.FormValue("password")
 				inputAccount := r.FormValue("account")
 				inputMfa := r.FormValue("MFA")
-				inputSha := r.FormValue("sha")
+				inputSha := r.FormValue("SHA")
 				input2fa := r.FormValue("2FA")
 
 				// Returns false or true based on if input is valid
@@ -659,7 +676,7 @@ func main() {
 				} else if validationMfa == false {
 					textBox(w, "New MFA secret key needs to be between 10-200 charecters ")
 				} else if validationSha == false {
-					textBox(w, "Secure Hash Algorithm can be sha1, sha256 or sha512")
+					textBox(w, "Secure Hash Algorithm can be SHA1, SHA256 or SHA512")
 				} else if validation2fa == false {
 					textBox(w, "2FA code needs to be a 6 digit number")
 				} else if inputEmail == envEmail {
