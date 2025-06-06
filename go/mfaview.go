@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/ellwould/aestext"
+	"github.com/ellwould/csvcell"
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/mdp/qrterminal/v3"
@@ -17,8 +19,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/ellwould/csvcell"
-	"github.com/ellwould/aestext"
 )
 
 // Constant for mfaview.env absolute path
@@ -535,9 +535,9 @@ func main() {
 			fmt.Fprintf(w, "</form>")
 			fmt.Fprintf(w, "</div")
 			fmt.Fprintf(w, "<br>")
-                        fmt.Fprintf(w, "<br>")
-                        fmt.Fprintf(w, "<br>")
-                        
+			fmt.Fprintf(w, "<br>")
+			fmt.Fprintf(w, "<br>")
+
 			// Get email address, password and 2FA from HTTP POST
 			inputEmail := r.FormValue("email")
 			inputPassword := r.FormValue("password")
@@ -560,7 +560,6 @@ func main() {
 				correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
 				correct2fa := totp.Validate(input2fa, env2faKey)
 				if correctPasswd == true && correct2fa == true {
-					//fmt.Fprintf(w, "<br>")
 					fmt.Fprintf(w, "<table>")
 					fmt.Fprintf(w, "  <tr>")
 					fmt.Fprintf(w, "    <th class=accountNameTitleColor>Account Name</th>")
@@ -569,7 +568,7 @@ func main() {
 					fmt.Fprintf(w, "    <th class=sha512TitleColor>SHA512 Code</th>")
 					fmt.Fprintf(w, "    <th class=dateAddedTitleColor>Date Added</th>")
 					fmt.Fprintf(w, "  </tr>")
-					
+
 					// Read key.csv file
 					readKeyCSV := csvcell.ReadCSV(dirKeyCSV, fileKeyCSV)
 					for _, readKeyCSV := range readKeyCSV {
@@ -577,12 +576,13 @@ func main() {
 						decryptedKey := aestext.DecText(strings.Join((readKeyCSV[0:][1:2]), ", "), zeroPad(inputPassword))
 						sha := strings.Join((readKeyCSV[0:][2:3]), ", ")
 						dateAdded := strings.Join((readKeyCSV[0:][3:4]), ", ")
-						
+
 						fmt.Fprintf(w, "  <tr>")
 						fmt.Fprintf(w, "    <td class=accountNameValueColor><b>"+accountName+"</b></td>")
 						if sha == "SHA1" {
 							sha1 := readMFA(decryptedKey, otp.AlgorithmSHA1)
 							fmt.Fprintf(w, "    <td class=sha1CodeColor><b>"+sha1+"</b></td>")
+							fmt.Println(decryptedKey)
 						} else {
 							fmt.Fprintf(w, "    <td class=sha1CodeColor><b>&#9473&#9473</b></td>")
 						}
@@ -600,10 +600,10 @@ func main() {
 						}
 						fmt.Fprintf(w, "    <td class=dateAddedValueColor>"+dateAdded+"</td>")
 						fmt.Fprintf(w, "  </tr>")
-				        }
-				        fmt.Fprintf(w, "</table>")				        
-				        fmt.Fprintf(w, "<br>")
-				        fmt.Fprintf(w, "<br>")
+					}
+					fmt.Fprintf(w, "</table>")
+					fmt.Fprintf(w, "<br>")
+					fmt.Fprintf(w, "<br>")
 				} else {
 					textBox(w, "Wrong Credentials Entered")
 				}
@@ -646,8 +646,8 @@ func main() {
 				fmt.Fprintf(w, "</form>")
 				fmt.Fprintf(w, "</div")
 				fmt.Fprintf(w, "<br>")
-                                fmt.Fprintf(w, "<br>")
-                                fmt.Fprintf(w, "<br>")
+				fmt.Fprintf(w, "<br>")
+				fmt.Fprintf(w, "<br>")
 
 				// Get email address, password, MFA account name, MFA secret key, SHA type and 2FA from HTTP POST
 				inputEmail := r.FormValue("email")
@@ -683,7 +683,9 @@ func main() {
 					correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
 					correct2fa := totp.Validate(input2fa, env2faKey)
 					if correctPasswd == true && correct2fa == true {
-						//test
+						date := time.Now().Local()
+						data := inputAccount + "," + aestext.EncText(inputMfa, zeroPad(inputPassword)) + "," + inputSha + "," + date.Format("02-01-2006") + "\n"
+						csvcell.WriteCSV(dirKeyCSV, fileKeyCSV, 0, data, 0)
 						textBox(w, "Correct Credentials")
 					} else {
 						textBox(w, "Wrong Credentials Entered")
