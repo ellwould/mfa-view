@@ -220,7 +220,7 @@ func comparePasswd(passwd []byte, hashedPasswd []byte) bool {
 }
 
 // Function to draw box with squares around message, must have a message with characters that total a odd number
-func messageBoxCli(bgColour string, messageColour string, message string) {
+func messageBoxCLI(bgColour string, messageColour string, message string) {
 	topBottomSquare := strings.Repeat(" □", (len(message)/2)+6)
 	inbetweenSpace := strings.Repeat(" ", len(message)+8)
 	fmt.Println(bgColour + messageColour)
@@ -233,29 +233,29 @@ func messageBoxCli(bgColour string, messageColour string, message string) {
 }
 
 // Function to display message on CLI informing the user the configuration file has a wrong value
-func invalidEnvCli(message string) {
+func invalidEnvCLI(message string) {
 	clearScreen()
-	messageBoxCli(bgRed, textBoldWhite, message)
+	messageBoxCLI(bgRed, textBoldWhite, message)
 	os.Exit(0)
 }
 
 // Function to terminate the program with exit code 0 to indicate there were no errors
-func exitProgramCli() {
+func exitProgramCLI() {
 	clearScreen()
-	messageBoxCli(bgBlue, textBoldWhite, "Program exited.")
+	messageBoxCLI(bgBlue, textBoldWhite, "Program exited.")
 	os.Exit(0)
 }
 
 // Function to inform the user of wrong input and waits for user to press enter/return key
-func invalidInputCli() {
+func invalidInputCLI() {
 	clearScreen()
-	messageBoxCli(bgRed, textBoldWhite, "Invalid input press enter/return to continue.")
+	messageBoxCLI(bgRed, textBoldWhite, "Invalid input press enter/return to continue.")
 	fmt.Scanln()
 }
 
 // Function to inform the user to type exit to terminate the program
-func typeExitCli() {
-	messageBoxCli(bgBlue, textBoldWhite, "(Type exit to quit program)")
+func typeExitCLI() {
+	messageBoxCLI(bgBlue, textBoldWhite, "(Type exit to quit program)")
 }
 
 // Function to replace strings in mfaview.conf
@@ -274,7 +274,7 @@ func replaceText(oldText string, newText string) {
 }
 
 // Function to generate a 2FA key and URL
-func gen2faKey() (string, string) {
+func gen2FAKey() (string, string) {
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      "MFA View Server",
 		AccountName: "MFA View Server Account",
@@ -291,11 +291,11 @@ func gen2faKey() (string, string) {
 }
 
 // A recursive function to add a user email
-func addEmailCli() {
+func addEmailCLI() {
 	clearScreen()
-	typeExitCli()
-	messageBoxCli(bgCyan, textBoldWhite, "Email address is required")
-	messageBoxCli(bgRed, textBoldWhite, "Email address can be manually changed later in "+mfaViewEnv)
+	typeExitCLI()
+	messageBoxCLI(bgCyan, textBoldWhite, "Email address is required")
+	messageBoxCLI(bgRed, textBoldWhite, "Email address can be manually changed later in "+mfaViewEnv)
 	fmt.Println(textBoldBlack)
 	fmt.Printf("   Please enter an email address between 6-320\n   characters: ")
 	var addEmail string
@@ -303,20 +303,20 @@ func addEmailCli() {
 	fmt.Println(resetColour)
 	validationAddEmail := validateInput(addEmail, "email")
 	if addEmail == "exit" || addEmail == "Exit" || addEmail == "EXIT" {
-		exitProgramCli()
+		exitProgramCLI()
 	} else if validationAddEmail == false {
-		invalidInputCli()
-		addEmailCli()
+		invalidInputCLI()
+		addEmailCLI()
 	} else {
 		replaceText("email_not_set", addEmail)
 	}
 }
 
 // A recursive function to add a user password, a hashed and salted value of the password will be stored
-func addPasswordCli() {
+func addPasswordCLI() {
 	clearScreen()
-	typeExitCli()
-	messageBoxCli(bgPurple, textBoldWhite, "A password is required ")
+	typeExitCLI()
+	messageBoxCLI(bgPurple, textBoldWhite, "A password is required ")
 	fmt.Println(bgRed + textBoldWhite)
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(" □                                                                                                               □ ")
@@ -332,7 +332,7 @@ func addPasswordCli() {
 	var addPassword string
 	fmt.Scan(&addPassword)
 	if addPassword == "exit" || addPassword == "Exit" || addPassword == "EXIT" {
-		exitProgramCli()
+		exitProgramCLI()
 	}
 	validationAddPassword := validateInput(addPassword, "password")
 	fmt.Println("")
@@ -342,13 +342,13 @@ func addPasswordCli() {
 	validationCheckPassword := validateInput(checkPassword, "password")
 	fmt.Println(resetColour)
 	if validationAddPassword == false || validationCheckPassword == false {
-		invalidInputCli()
-		addPasswordCli()
+		invalidInputCLI()
+		addPasswordCLI()
 	} else if addPassword != checkPassword {
 		clearScreen()
-		messageBoxCli(bgRed, textBoldWhite, "Passwords entered do not match, press enter/return to continue.")
+		messageBoxCLI(bgRed, textBoldWhite, "Passwords entered do not match, press enter/return to continue.")
 		fmt.Scanln()
-		addPasswordCli()
+		addPasswordCLI()
 	} else {
 		paddedPassword := zeroPad(addPassword)
 		hashedPassword := genPasswd([]byte(paddedPassword))
@@ -357,12 +357,12 @@ func addPasswordCli() {
 }
 
 // A recursive function to add a 2FA secret key, MFA View needs a username(email), password and 2FA code to login to view other 2FA/MFA codes
-func add2faCli() {
+func add2FACLI() {
 	clearScreen()
-	typeExitCli()
-	messageBoxCli(bgBlack, textBoldWhite, "Scan the QR (Quick Response) code with another authenticator app or copy the secret key to another authenticator app ")
+	typeExitCLI()
+	messageBoxCLI(bgBlack, textBoldWhite, "Scan the QR (Quick Response) code with another authenticator app or copy the secret key to another authenticator app ")
 	fmt.Println("")
-	generated2faKey, generated2faUrl := gen2faKey()
+	generated2FAKey, generated2FAURL := gen2FAKey()
 	qrConfig := qrterminal.Config{
 		Level:     qrterminal.L,
 		Writer:    os.Stdout,
@@ -370,11 +370,11 @@ func add2faCli() {
 		WhiteChar: qrterminal.BLACK,
 		QuietZone: 0,
 	}
-	qrterminal.GenerateWithConfig(generated2faUrl, qrConfig)
+	qrterminal.GenerateWithConfig(generated2FAURL, qrConfig)
 	fmt.Println(bgBlack + textBoldWhite)
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(" □                                                       □ ")
-	fmt.Println(" □    Secret Key: " + resetColour + bgWhite + textBoldBlack + " " + generated2faKey + " " + resetColour + bgBlack + textBoldWhite + "     □ ")
+	fmt.Println(" □    Secret Key: " + resetColour + bgWhite + textBoldBlack + " " + generated2FAKey + " " + resetColour + bgBlack + textBoldWhite + "     □ ")
 	fmt.Println(" □                                                       □ ")
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(resetColour + bgRed + textBoldWhite)
@@ -387,47 +387,47 @@ func add2faCli() {
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(resetColour + textBoldBlack)
 	fmt.Printf("      Please enter the 6 digit generated\n      code from the your other 2FA/MFA app: ")
-	var test2faCode string
-	fmt.Scan(&test2faCode)
-	validationTest2faCode := validateInput(test2faCode, "2FA")
+	var test2FACode string
+	fmt.Scan(&test2FACode)
+	validationTest2FACode := validateInput(test2FACode, "2FA")
 	fmt.Println("")
-	if test2faCode == "exit" || test2faCode == "Exit" || test2faCode == "EXIT" {
-		exitProgramCli()
-	} else if validationTest2faCode == false {
-		invalidInputCli()
-		add2faCli()
+	if test2FACode == "exit" || test2FACode == "Exit" || test2FACode == "EXIT" {
+		exitProgramCLI()
+	} else if validationTest2FACode == false {
+		invalidInputCLI()
+		add2FACLI()
 	} else {
-		correct2faCode := totp.Validate(test2faCode, generated2faKey)
-		if correct2faCode {
+		correct2FACode := totp.Validate(test2FACode, generated2FAKey)
+		if correct2FACode {
 			clearScreen()
-			replaceText("2fa_not_set", generated2faKey)
-			messageBoxCli(bgGreen, textBoldWhite, "Successfully added 2FA secret key")
+			replaceText("2fa_not_set", generated2FAKey)
+			messageBoxCLI(bgGreen, textBoldWhite, "Successfully added 2FA secret key")
 			os.Exit(0)
 		} else {
 			clearScreen()
-			messageBoxCli(bgRed, textBoldWhite, "2FA code entered is incorrect, press enter/return to continue")
+			messageBoxCLI(bgRed, textBoldWhite, "2FA code entered is incorrect, press enter/return to continue")
 			fmt.Scanln()
-			add2faCli()
+			add2FACLI()
 		}
 	}
 }
 
 // Basic function with no parameters to call the addEmailCli, addPasswordCli and add2faCli functions
-func createUserCli() {
-	addEmailCli()
-	addPasswordCli()
-	add2faCli()
+func createUserCLI() {
+	addEmailCLI()
+	addPasswordCLI()
+	add2FACLI()
 }
 
 // Basic function with no parameters to call the addPasswordCli and add2faCli functions
-func createPassword2faCli() {
-	addPasswordCli()
-	add2faCli()
+func createPassword2FACLI() {
+	addPasswordCLI()
+	add2FACLI()
 }
 
 // Recursive function to change an existing known password
 // This function needs alot of work:
-func changePasswordCli() {
+func changePasswordCLI() {
 	clearScreen()
 	fmt.Println(bgRed + textBoldWhite)
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
@@ -474,7 +474,7 @@ func main() {
 
 	envEmail := os.Getenv("email")
 	envPassword := os.Getenv("password")
-	env2faKey := os.Getenv("2fa_key")
+	env2FAKey := os.Getenv("2fa_key")
 	envChangePassword := os.Getenv("change_password")
 	envAddress := os.Getenv("address")
 	envPort := os.Getenv("port")
@@ -485,25 +485,25 @@ func main() {
 
 	envPortInt, err := strconv.Atoi(envPort)
 	if err != nil {
-		invalidEnvCli("Port must be a number in " + mfaViewEnv)
+		invalidEnvCLI("Port must be a number in " + mfaViewEnv)
 	}
 
-	if envEmail == "email_not_set" && envPassword == "password_not_set" && env2faKey == "2fa_not_set" {
-		createUserCli()
+	if envEmail == "email_not_set" && envPassword == "password_not_set" && env2FAKey == "2fa_not_set" {
+		createUserCLI()
 	} else if validationEnvEmail == false {
-		invalidEnvCli("Email address stored in " + mfaViewEnv + " is invalid")
-	} else if validationEnvEmail == true && envPassword == "password_not_set" && env2faKey == "2fa_not_set" {
-		createPassword2faCli()
-	} else if env2faKey == "2fa_not_set" {
-		add2faCli()
+		invalidEnvCLI("Email address stored in " + mfaViewEnv + " is invalid")
+	} else if validationEnvEmail == true && envPassword == "password_not_set" && env2FAKey == "2fa_not_set" {
+		createPassword2FACLI()
+	} else if env2FAKey == "2fa_not_set" {
+		add2FACLI()
 	} else if envAddress != "localhost" {
 		if validationEnvAddress == false {
-			invalidEnvCli("Address in " + mfaViewEnv + " must be a valid Internet Protocol (IP) address or localhost")
+			invalidEnvCLI("Address in " + mfaViewEnv + " must be a valid Internet Protocol (IP) address or localhost")
 		}
 	} else if envPortInt <= 0 || envPortInt >= 65536 {
-		invalidEnvCli("Port number in " + mfaViewEnv + " must be between 1 and 35535")
+		invalidEnvCLI("Port number in " + mfaViewEnv + " must be between 1 and 35535")
 	} else if envChangePassword == "yes" || envChangePassword == "Yes" || envChangePassword == "YES" {
-		changePasswordCli()
+		changePasswordCLI()
 	} else {
 
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -541,25 +541,25 @@ func main() {
 			// Get email address, password and 2FA from HTTP POST
 			inputEmail := r.FormValue("email")
 			inputPassword := r.FormValue("password")
-			input2fa := r.FormValue("2FA")
+			input2FA := r.FormValue("2FA")
 
 			// Validate email address, password and 2FA
 			validationEmail := validateInput(inputEmail, "email")
 			validationPassword := validateInput(inputPassword, "password")
-			validation2fa := validateInput(input2fa, "2FA")
+			validation2FA := validateInput(input2FA, "2FA")
 
 			// Conditional statement to validate input
-			if inputEmail == "" && inputPassword == "" && input2fa == "" {
+			if inputEmail == "" && inputPassword == "" && input2FA == "" {
 			} else if validationEmail == false {
 				textBox(w, "Please enter a valid email address, max 320 charecters length")
 			} else if validationPassword == false {
 				textBox(w, "Password needs to be between 16-32 charecters length")
-			} else if validation2fa == false {
+			} else if validation2FA == false {
 				textBox(w, "MFA code needs to be a 6 digit number")
 			} else if inputEmail == envEmail {
 				correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
-				correct2fa := totp.Validate(input2fa, env2faKey)
-				if correctPasswd == true && correct2fa == true {
+				correct2FA := totp.Validate(input2FA, env2FAKey)
+				if correctPasswd == true && correct2FA == true {
 					fmt.Fprintf(w, "<table>")
 					fmt.Fprintf(w, "  <tr>")
 					fmt.Fprintf(w, "    <th class=accountNameTitleColor>Account Name</th>")
@@ -653,38 +653,38 @@ func main() {
 				inputEmail := r.FormValue("email")
 				inputPassword := r.FormValue("password")
 				inputAccount := r.FormValue("account")
-				inputMfa := r.FormValue("MFA")
-				inputSha := r.FormValue("SHA")
-				input2fa := r.FormValue("2FA")
+				inputMFA := r.FormValue("MFA")
+				inputSHA := r.FormValue("SHA")
+				input2FA := r.FormValue("2FA")
 
 				// Returns false or true based on if input is valid
 				validationEmail := validateInput(inputEmail, "email")
 				validationPassword := validateInput(inputPassword, "password")
 				validationAccount := validateInput(inputAccount, "text")
-				validationMfa := validateInput(inputMfa, "text")
-				validationSha := slices.Contains(shaList, inputSha)
-				validation2fa := validateInput(input2fa, "2FA")
+				validationMFA := validateInput(inputMFA, "text")
+				validationSHA := slices.Contains(shaList, inputSHA)
+				validation2FA := validateInput(input2FA, "2FA")
 
 				// Conditional statement to validate input
-				if inputEmail == "" && inputPassword == "" && inputAccount == "" && inputMfa == "" && inputSha == "" && input2fa == "" {
+				if inputEmail == "" && inputPassword == "" && inputAccount == "" && inputMFA == "" && inputSHA == "" && input2FA == "" {
 				} else if validationEmail == false {
 					textBox(w, "Please enter a valid email address, max 320 charecters length")
 				} else if validationPassword == false {
 					textBox(w, "Password needs to be between 16-32 charecters length")
 				} else if validationAccount == false {
 					textBox(w, "Please enter a valid account name, max 100 charecters length")
-				} else if validationMfa == false {
+				} else if validationMFA == false {
 					textBox(w, "New MFA secret key needs to be between 10-200 charecters ")
-				} else if validationSha == false {
+				} else if validationSHA == false {
 					textBox(w, "Secure Hash Algorithm can be SHA1, SHA256 or SHA512")
-				} else if validation2fa == false {
+				} else if validation2FA == false {
 					textBox(w, "2FA code needs to be a 6 digit number")
 				} else if inputEmail == envEmail {
 					correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
-					correct2fa := totp.Validate(input2fa, env2faKey)
-					if correctPasswd == true && correct2fa == true {
+					correct2FA := totp.Validate(input2FA, env2FAKey)
+					if correctPasswd == true && correct2FA == true {
 						date := time.Now().Local()
-						data := inputAccount + "," + aestext.EncText(inputMfa, zeroPad(inputPassword)) + "," + inputSha + "," + date.Format("02-01-2006") + "\n"
+						data := inputAccount + "," + aestext.EncText(inputMFA, zeroPad(inputPassword)) + "," + inputSHA + "," + date.Format("02-01-2006") + "\n"
 						csvcell.WriteCSV(dirKeyCSV, fileKeyCSV, 0, data, 0)
 						textBox(w, "Correct Credentials")
 					} else {
@@ -712,7 +712,7 @@ func main() {
 
 	// IP address and port number, value taken from mfaview.env
 	socket := envAddress + ":" + envPort
-	messageBoxCli(bgGreen, textBoldWhite, "MFA View is running on "+socket)
+	messageBoxCLI(bgGreen, textBoldWhite, "MFA View is running on "+socket)
 	fmt.Println("")
 
 	// Start server on port specified above
