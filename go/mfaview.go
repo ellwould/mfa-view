@@ -582,7 +582,6 @@ func main() {
 						if sha == "SHA1" {
 							sha1 := readMFA(decryptedKey, otp.AlgorithmSHA1)
 							fmt.Fprintf(w, "    <td class=sha1CodeColor><b>"+sha1+"</b></td>")
-							fmt.Println(decryptedKey)
 						} else {
 							fmt.Fprintf(w, "    <td class=sha1CodeColor><b>&#9473&#9473</b></td>")
 						}
