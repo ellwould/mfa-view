@@ -458,6 +458,18 @@ func readMFA(key string, sha otp.Algorithm) (passcode string) {
 	return passcode
 }
 
+func javaScriptCopy (w  http.ResponseWriter, sha string) {
+       fmt.Fprintf(w, "<script>")
+       fmt.Fprintf(w, "  function cp"+sha+"() {")
+       fmt.Fprintf(w, "    navigator.clipboard.writeText('"+sha+"');")
+       fmt.Fprintf(w, "  }")
+       fmt.Fprintf(w, "</script>")
+}
+
+func copyHTMLButton (w http.ResponseWriter, sha string) {
+       fmt.Fprintf(w, "&nbsp <button onclick=cp"+sha+"() class=\"pageButton\">&#10697</button>")
+}
+
 // Declare two string variables for HTML
 var startHTML string
 var endHTML string
@@ -566,7 +578,7 @@ func main() {
 					fmt.Fprintf(w, "    <th class=sha1TitleColor>SHA1 Code<br>(Default)</th>")
 					fmt.Fprintf(w, "    <th class=sha256TitleColor>SHA256 Code</th>")
 					fmt.Fprintf(w, "    <th class=sha512TitleColor>SHA512 Code</th>")
-					fmt.Fprintf(w, "    <th class=dateAddedTitleColor>Date Added</th>")
+					fmt.Fprintf(w, "    <th class=dateAddedTitleColor>Date Added<br>(DD-MM-YYYY)</th>")
 					fmt.Fprintf(w, "  </tr>")
 
 					// Read key.csv file
@@ -581,19 +593,28 @@ func main() {
 						fmt.Fprintf(w, "    <td class=accountNameValueColor><b>"+accountName+"</b></td>")
 						if sha == "SHA1" {
 							sha1 := readMFA(decryptedKey, otp.AlgorithmSHA1)
-							fmt.Fprintf(w, "    <td class=sha1CodeColor><b>"+sha1+"</b></td>")
+							javaScriptCopy(w, sha1)							
+							fmt.Fprintf(w, "    <td class=sha1CodeColor><b>"+sha1+"</b>")
+							copyHTMLButton(w, sha1)
+							fmt.Fprintf(w, "    </td>")
 						} else {
 							fmt.Fprintf(w, "    <td class=sha1CodeColor><b>&#9473&#9473</b></td>")
 						}
 						if sha == "SHA256" {
 							sha256 := readMFA(decryptedKey, otp.AlgorithmSHA256)
-							fmt.Fprintf(w, "    <td class=sha256CodeColor><b>"+sha256+"</b></td>")
+							javaScriptCopy(w, sha256)
+							fmt.Fprintf(w, "    <td class=sha256CodeColor><b>"+sha256+"</b>")
+							copyHTMLButton(w, sha256)
+							fmt.Fprintf(w, "    </td>")
 						} else {
 							fmt.Fprintf(w, "    <td class=sha256CodeColor><b>&#9473&#9473</b></td>")
 						}
 						if sha == "SHA512" {
 							sha512 := readMFA(decryptedKey, otp.AlgorithmSHA512)
-							fmt.Fprintf(w, "    <td class=sha512CodeColor><b>"+sha512+"</b></td>")
+							javaScriptCopy(w, sha512)
+							fmt.Fprintf(w, "    <td class=sha512CodeColor><b>"+sha512+"</b>")
+							copyHTMLButton(w, sha512)							
+							fmt.Fprintf(w, "    </td>")
 						} else {
 							fmt.Fprintf(w, "    <td class=sha512CodeColor><b>&#9473&#9473</b></td>")
 						}
