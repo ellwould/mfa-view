@@ -467,7 +467,7 @@ func javaScriptCopy (w  http.ResponseWriter, sha string) {
 }
 
 func copyHTMLButton (w http.ResponseWriter, sha string) {
-       fmt.Fprintf(w, "&nbsp <button onclick=cp"+sha+"() class=\"pageButton\">&#10697</button>")
+       fmt.Fprintf(w, "&nbsp <button onclick=cp"+sha+"() class=\"copyButton\">&#10697</button>")
 }
 
 // Declare two string variables for HTML
@@ -572,7 +572,7 @@ func main() {
 				correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
 				correct2FA := totp.Validate(input2FA, env2FAKey)
 				if correctPasswd == true && correct2FA == true {
-					fmt.Fprintf(w, "<table>")
+					fmt.Fprintf(w, "<table class=mfaTableTextColor>")
 					fmt.Fprintf(w, "  <tr>")
 					fmt.Fprintf(w, "    <th class=accountNameTitleColor>Account Name</th>")
 					fmt.Fprintf(w, "    <th class=sha1TitleColor>SHA1 Code<br>(Default)</th>")
@@ -618,7 +618,7 @@ func main() {
 						} else {
 							fmt.Fprintf(w, "    <td class=sha512CodeColor><b>&#9473&#9473</b></td>")
 						}
-						fmt.Fprintf(w, "    <td class=dateAddedValueColor>"+dateAdded+"</td>")
+						fmt.Fprintf(w, "    <td class=dateAddedValueColor><b>"+dateAdded+"</b></td>")
 						fmt.Fprintf(w, "  </tr>")
 					}
 					fmt.Fprintf(w, "</table>")

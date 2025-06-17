@@ -57,54 +57,49 @@ table, th, td {
  color: #000000;
 } 
 
+.mfaTableTextColor {
+ color: #F0F0F0;
+ text-shadow: 0 0 3px #000000, 0 0 3px #000000, 0 0 3px #000000, 0 0 3px #000000;
+}
+
 .accountNameTitleColor {
  background-color: #673AB7;
- color: #f0f0f0;
 }
 
 .accountNameValueColor {
  background-color: #9575CD;
- color: #f0f0f0;
-}
-
-.dateAddedTitleColor {
- background-color: #3F51B5;
- color: #f0f0f0;
-}
-
-.dateAddedValueColor {
- background-color: #7986CB;
- color: #f0f0f0;
 }
 
 .sha1TitleColor {
  background-color: #1565C0;
- color: #f0f0f0;
 }
 
 .sha1CodeColor {
  background-color: #1E88E5;
- color: #f0f0f0;
 }
 
 .sha256TitleColor {
  background-color: #00695C;
- color: #f0f0f0;
 }
 
 .sha256CodeColor {
  background-color: #00897B;
- color: #f0f0f0;
 }
 
 .sha512TitleColor {
  background-color: #2E7D32;
- color: #f0f0f0;
 }
 
 .sha512CodeColor {
  background-color: #43A047;
- color: #f0f0f0;
+}
+
+.dateAddedTitleColor {
+ background-color: #3F51B5;
+}
+
+.dateAddedValueColor {
+ background-color: #7986CB;
 }
 
 th, td {
@@ -149,6 +144,24 @@ th {
   background-color: #90EE90;
   color: #000000;
   border: 5px inset #90EE90;
+}
+
+.copyButton {
+  width: auto;
+  font: bold 20px sans-serif;
+  text-decoration: none;
+  background-color: #F0F0F0;
+  color: #000000;
+  padding: 2px 6px 2px 6px;
+  border: 5px outset #000000;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.copyButton:hover {
+  background-color: #D3D3D3;
+  color: #000000;
+  border: 5px inset #000000;
 }
 
 input[type=text],
