@@ -100,6 +100,27 @@ func getFile(rootDirPath string, fileName string) (result string) {
 	return result
 }
 
+// Function to empty a file
+func wipeKeyFile() {
+
+	// Go introduced OpenRoot in version 1.24, it restricts file operations to a single directory
+	rootDir, err := os.OpenRoot(dirKeyCSV)
+
+	if err != nil {
+		panic("Directory path does not exist")
+	}
+
+	defer rootDir.Close()
+
+	file, err := rootDir.Create(fileKeyCSV)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer file.Close()
+}
+
 // Function to create table with hyperlink button and message
 func messageTable(w http.ResponseWriter, urlPath string, buttonMessage string, descriptionMessage string) {
 	fmt.Fprintf(w, "<br>")
@@ -243,6 +264,7 @@ func invalidEnvCLI(message string) {
 func exitProgramCLI() {
 	clearScreen()
 	messageBoxCLI(bgBlue, textBoldWhite, "Program exited.")
+	fmt.Println("")
 	os.Exit(0)
 }
 
@@ -426,8 +448,7 @@ func createPassword2FACLI() {
 }
 
 // Recursive function to change an existing known password
-// This function needs alot of work:
-func changePasswordCLI() {
+func changePasswordCLI(envPassword string) {
 	clearScreen()
 	fmt.Println(bgRed + textBoldWhite)
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
@@ -440,6 +461,73 @@ func changePasswordCLI() {
 	fmt.Println(" □                                                                   □ ")
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(resetColour)
+	var currentPassword string
+	fmt.Println(textBoldBlack)
+	fmt.Printf("      Please enter current password: ")
+	fmt.Scan(&currentPassword)
+	validationCurrentPassword := validateInput(currentPassword, "password")
+	correctPassword := comparePasswd([]byte(zeroPad(currentPassword)), []byte(envPassword))
+	if currentPassword == "exit" || currentPassword == "Exit" || currentPassword == "EXIT" {
+		exitProgramCLI()
+	} else if validationCurrentPassword == false {
+		messageBoxCLI(bgRed, textBoldWhite, "Current password needs to be 16-32 charecters, press enter/return to continue")
+		fmt.Scanln()
+		changePasswordCLI(envPassword)
+	} else if correctPassword == false {
+		messageBoxCLI(bgRed, textBoldWhite, "Password incorrect ")
+		fmt.Scanln()
+		changePasswordCLI(envPassword)
+	}
+	fmt.Println("")
+	var newPassword string
+	fmt.Printf("      Please enter new password: ")
+	fmt.Scan(&newPassword)
+	validationNewPassword := validateInput(newPassword, "password")
+	if newPassword == "exit" || newPassword == "Exit" || newPassword == "EXIT" {
+		exitProgramCLI()
+	} else if validationNewPassword == false {
+		messageBoxCLI(bgRed, textBoldWhite, "New password needs to be 16-32 charecters, press enter/return to continue")
+		fmt.Scanln()
+		changePasswordCLI(envPassword)
+	}
+	fmt.Println("")
+	var newPasswordCheck string
+	fmt.Printf("      Please re-enter the new password: ")
+	fmt.Scan(&newPasswordCheck)
+	validationNewPasswordCheck := validateInput(newPasswordCheck, "password")
+	if newPasswordCheck == "exit" || newPasswordCheck == "Exit" || newPasswordCheck == "EXIT" {
+		exitProgramCLI()
+	} else if validationNewPasswordCheck == false {
+		messageBoxCLI(bgRed, textBoldWhite, "New re-entered password needs to be 16-32 charecters, press enter/return to continue")
+		fmt.Scanln()
+		changePasswordCLI(envPassword)
+	}
+	if newPassword != newPasswordCheck {
+		clearScreen()
+		messageBoxCLI(bgRed, textBoldWhite, "New passwords entered do not match, press enter/return to continue.")
+		fmt.Scanln()
+		changePasswordCLI(envPassword)
+	}
+
+	wipeFile := true
+
+	readKeyCSV := csvcell.ReadCSV(dirKeyCSV, fileKeyCSV)
+	for _, readKeyCSV := range readKeyCSV {
+		accountName := strings.Join((readKeyCSV[0:][0:1]), ", ")
+		oldDecryptedKey := aestext.DecText(strings.Join((readKeyCSV[0:][1:2]), ", "), zeroPad(currentPassword))
+		sha := strings.Join((readKeyCSV[0:][2:3]), ", ")
+		dateAdded := strings.Join((readKeyCSV[0:][3:4]), ", ")
+		if wipeFile == true {
+			wipeKeyFile()
+			wipeFile = false
+		}
+		data := accountName + "," + aestext.EncText(oldDecryptedKey, zeroPad(newPassword)) + "," + sha + "," + dateAdded
+		csvcell.WriteCSV(dirKeyCSV, fileKeyCSV, 0, data, 0)
+	}
+
+	newHashedPassword := genPasswd([]byte(zeroPad(newPassword)))
+	replaceText(envPassword, newHashedPassword)
+	exitProgramCLI()
 }
 
 // Function to generate passcode from MFA secret key
@@ -458,16 +546,16 @@ func readMFA(key string, sha otp.Algorithm) (passcode string) {
 	return passcode
 }
 
-func javaScriptCopy (w  http.ResponseWriter, sha string) {
-       fmt.Fprintf(w, "<script>")
-       fmt.Fprintf(w, "  function cp"+sha+"() {")
-       fmt.Fprintf(w, "    navigator.clipboard.writeText('"+sha+"');")
-       fmt.Fprintf(w, "  }")
-       fmt.Fprintf(w, "</script>")
+func javaScriptCopy(w http.ResponseWriter, sha string) {
+	fmt.Fprintf(w, "<script>")
+	fmt.Fprintf(w, "  function cp"+sha+"() {")
+	fmt.Fprintf(w, "    navigator.clipboard.writeText('"+sha+"');")
+	fmt.Fprintf(w, "  }")
+	fmt.Fprintf(w, "</script>")
 }
 
-func copyHTMLButton (w http.ResponseWriter, sha string) {
-       fmt.Fprintf(w, "&nbsp <button onclick=cp"+sha+"() class=\"copyButton\">&#10697</button>")
+func copyHTMLButton(w http.ResponseWriter, sha string) {
+	fmt.Fprintf(w, "&nbsp <button onclick=cp"+sha+"() class=\"copyButton\">&#10697</button>")
 }
 
 // Declare two string variables for HTML
@@ -515,7 +603,7 @@ func main() {
 	} else if envPortInt <= 0 || envPortInt >= 65536 {
 		invalidEnvCLI("Port number in " + mfaViewEnv + " must be between 1 and 35535")
 	} else if envChangePassword == "yes" || envChangePassword == "Yes" || envChangePassword == "YES" {
-		changePasswordCLI()
+		changePasswordCLI(envPassword)
 	} else {
 
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -593,7 +681,7 @@ func main() {
 						fmt.Fprintf(w, "    <td class=accountNameValueColor><b>"+accountName+"</b></td>")
 						if sha == "SHA1" {
 							sha1 := readMFA(decryptedKey, otp.AlgorithmSHA1)
-							javaScriptCopy(w, sha1)							
+							javaScriptCopy(w, sha1)
 							fmt.Fprintf(w, "    <td class=sha1CodeColor><b>"+sha1+"</b>")
 							copyHTMLButton(w, sha1)
 							fmt.Fprintf(w, "    </td>")
@@ -613,7 +701,7 @@ func main() {
 							sha512 := readMFA(decryptedKey, otp.AlgorithmSHA512)
 							javaScriptCopy(w, sha512)
 							fmt.Fprintf(w, "    <td class=sha512CodeColor><b>"+sha512+"</b>")
-							copyHTMLButton(w, sha512)							
+							copyHTMLButton(w, sha512)
 							fmt.Fprintf(w, "    </td>")
 						} else {
 							fmt.Fprintf(w, "    <td class=sha512CodeColor><b>&#9473&#9473</b></td>")
