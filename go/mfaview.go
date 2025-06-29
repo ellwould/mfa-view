@@ -792,9 +792,9 @@ func main() {
 					correct2FA := totp.Validate(input2FA, env2FAKey)
 					if correctPasswd == true && correct2FA == true {
 						date := time.Now().Local()
-						data := inputAccount + "," + aestext.EncText(inputMFA, zeroPad(inputPassword)) + "," + inputSHA + "," + date.Format("02-01-2006") + "\n"
+						data := inputAccount + "," + aestext.EncText(inputMFA, zeroPad(inputPassword)) + "," + inputSHA + "," + date.Format("02-01-2006")
 						csvcell.WriteCSV(dirKeyCSV, fileKeyCSV, 0, data, 0)
-						textBox(w, "Correct Credentials")
+						textBox(w, "Account Added")
 					} else {
 						textBox(w, "Wrong Credentials Entered")
 					}
