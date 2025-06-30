@@ -216,23 +216,23 @@ func textBox(w http.ResponseWriter, textBoxMessage string) {
 }
 
 // Function to pad out password with 0's for length between 16 and 32 characters
-func zeroPad(passwd string) string {
-	zeroQuantity := 32 - len(passwd)
-	newPasswd := passwd + strings.Repeat("0", zeroQuantity)
-	return newPasswd
+func zeroPad(password string) string {
+	zeroQuantity := 32 - len(password)
+	newPassword := password + strings.Repeat("0", zeroQuantity)
+	return newPassword
 }
 
 // Function to generate new hash and salted password using Bcrypt
-func genPasswd(passwd []byte) string {
-	hashAndSalt, err := bcrypt.GenerateFromPassword(passwd, bcrypt.MinCost)
+func genPassword(password []byte) string {
+	hashAndSalt, err := bcrypt.GenerateFromPassword(password, bcrypt.MinCost)
 	if err != nil {
 		log.Println(err)
 	}
 	return string(hashAndSalt)
 }
 
-func comparePasswd(passwd []byte, hashedPasswd []byte) bool {
-	result := bcrypt.CompareHashAndPassword(hashedPasswd, passwd)
+func comparePassword(password []byte, hashedPassword []byte) bool {
+	result := bcrypt.CompareHashAndPassword(hashedPassword, password)
 	if result == nil {
 		return true
 	} else {
@@ -373,7 +373,7 @@ func addPasswordCLI() {
 		addPasswordCLI()
 	} else {
 		paddedPassword := zeroPad(addPassword)
-		hashedPassword := genPasswd([]byte(paddedPassword))
+		hashedPassword := genPassword([]byte(paddedPassword))
 		replaceText("password_not_set", hashedPassword)
 	}
 }
@@ -466,7 +466,7 @@ func changePasswordCLI(envPassword string) {
 	fmt.Printf("      Please enter current password: ")
 	fmt.Scan(&currentPassword)
 	validationCurrentPassword := validateInput(currentPassword, "password")
-	correctPassword := comparePasswd([]byte(zeroPad(currentPassword)), []byte(envPassword))
+	correctPassword := comparePassword([]byte(zeroPad(currentPassword)), []byte(envPassword))
 	if currentPassword == "exit" || currentPassword == "Exit" || currentPassword == "EXIT" {
 		exitProgramCLI()
 	} else if validationCurrentPassword == false {
@@ -525,7 +525,7 @@ func changePasswordCLI(envPassword string) {
 		csvcell.WriteCSV(dirKeyCSV, fileKeyCSV, 0, data, 0)
 	}
 
-	newHashedPassword := genPasswd([]byte(zeroPad(newPassword)))
+	newHashedPassword := genPassword([]byte(zeroPad(newPassword)))
 	replaceText(envPassword, newHashedPassword)
 	exitProgramCLI()
 }
@@ -657,9 +657,9 @@ func main() {
 			} else if validation2FA == false {
 				textBox(w, "MFA code needs to be a 6 digit number")
 			} else if inputEmail == envEmail {
-				correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
+				correctPassword := comparePassword([]byte(zeroPad(inputPassword)), []byte(envPassword))
 				correct2FA := totp.Validate(input2FA, env2FAKey)
-				if correctPasswd == true && correct2FA == true {
+				if correctPassword == true && correct2FA == true {
 					fmt.Fprintf(w, "<table class=mfaTableTextColor>")
 					fmt.Fprintf(w, "  <tr>")
 					fmt.Fprintf(w, "    <th class=accountNameTitleColor>Account Name</th>")
@@ -788,9 +788,9 @@ func main() {
 				} else if validation2FA == false {
 					textBox(w, "2FA code needs to be a 6 digit number")
 				} else if inputEmail == envEmail {
-					correctPasswd := comparePasswd([]byte(zeroPad(inputPassword)), []byte(envPassword))
+					correctPassword := comparePassword([]byte(zeroPad(inputPassword)), []byte(envPassword))
 					correct2FA := totp.Validate(input2FA, env2FAKey)
-					if correctPasswd == true && correct2FA == true {
+					if correctPassword == true && correct2FA == true {
 						date := time.Now().Local()
 						data := inputAccount + "," + aestext.EncText(inputMFA, zeroPad(inputPassword)) + "," + inputSHA + "," + date.Format("02-01-2006")
 						csvcell.WriteCSV(dirKeyCSV, fileKeyCSV, 0, data, 0)
