@@ -186,7 +186,7 @@ func validateInput(value string, valueType string) (validation bool) {
 			return
 		}
 	} else if valueType == "secretKey" {
-		validateInputErr := validateInput.Var(value, "required,min=16,max=128")
+		validateInputErr := validateInput.Var(value, "required,min=16,max=128,excludes=0x2C")
 		if validateInputErr != nil {
 			validation = false
 			return
@@ -476,7 +476,7 @@ func changePasswordCLI(envPassword string) {
 	fmt.Println(" □                                                                   □ ")
 	fmt.Println(" □      The change_password option is set to yes in mfaview.env      □ ")
 	fmt.Println(" □    To change the password the exisitng password must be known     □ ")
-	fmt.Println(" □  New password must be 16-32 charecters & not contain a comma (,)  □ ")
+	fmt.Println(" □  New password must be 16-32 characters & not contain a comma (,)  □ ")
 	fmt.Println(" □                                                                   □ ")
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(resetColour)
@@ -490,7 +490,7 @@ func changePasswordCLI(envPassword string) {
 		exitProgramCLI()
 	} else if validationCurrentPassword == false {
 		clearScreen()
-		messageBoxCLI(bgRed, textBoldWhite, "Current password needs to be 16-32 charecters, press enter/return to continue")
+		messageBoxCLI(bgRed, textBoldWhite, "Current password needs to be 16-32 characters, press enter/return to continue")
 		fmt.Scanln()
 		changePasswordCLI(envPassword)
 	} else if correctPassword == false {
@@ -508,7 +508,7 @@ func changePasswordCLI(envPassword string) {
 		exitProgramCLI()
 	} else if validationNewPassword == false {
 		clearScreen()
-		messageBoxCLI(bgRed, textBoldWhite, "New password needs to be 16-32 charecters, press enter/return to continue")
+		messageBoxCLI(bgRed, textBoldWhite, "New password needs to be 16-32 characters, press enter/return to continue")
 		fmt.Scanln()
 		changePasswordCLI(envPassword)
 	}
@@ -521,7 +521,7 @@ func changePasswordCLI(envPassword string) {
 		exitProgramCLI()
 	} else if validationNewPasswordCheck == false {
 		clearScreen()
-		messageBoxCLI(bgRed, textBoldWhite, "New re-entered password needs to be 16-32 charecters, press enter/return to continue")
+		messageBoxCLI(bgRed, textBoldWhite, "New re-entered password needs to be 16-32 characters, press enter/return to continue")
 		fmt.Scanln()
 		changePasswordCLI(envPassword)
 	}
@@ -616,7 +616,13 @@ func main() {
 		invalidEnvCLI("Port must be a number in " + mfaViewEnv)
 	}
 
-	if envEmail == "email_not_set" && envPassword == "password_not_set" && env2FAKey == "2fa_not_set" {
+	if envPortInt <= 0 || envPortInt >= 65536 {
+		invalidEnvCLI("Port number in " + mfaViewEnv + " must be between 1 and 65535")
+	} else if envAddress != "localhost" {
+		if validationEnvAddress == false {
+			invalidEnvCLI("Address in " + mfaViewEnv + " must be a valid Internet Protocol (IP) address or localhost")
+		}
+	} else if envEmail == "email_not_set" && envPassword == "password_not_set" && env2FAKey == "2fa_not_set" {
 		createUserCLI()
 	} else if validationEnvEmail == false {
 		invalidEnvCLI("Email address stored in " + mfaViewEnv + " is invalid")
@@ -628,12 +634,6 @@ func main() {
 		invalidEnvCLI("Password stored in " + mfaViewEnv + " is invalid ")
 	} else if validationEnv2FA == false {
 		invalidEnvCLI("2FA secret key stored stored in " + mfaViewEnv + " is invalid")
-	} else if envAddress != "localhost" {
-		if validationEnvAddress == false {
-			invalidEnvCLI("Address in " + mfaViewEnv + " must be a valid Internet Protocol (IP) address or localhost")
-		}
-	} else if envPortInt <= 0 || envPortInt >= 65536 {
-		invalidEnvCLI("Port number in " + mfaViewEnv + " must be between 1 and 35535")
 	} else if envChangePassword == "yes" || envChangePassword == "Yes" || envChangePassword == "YES" {
 		changePasswordCLI(envPassword)
 	} else {
@@ -662,7 +662,7 @@ func main() {
 			fmt.Fprintf(w, "<form method=\"POST\" action=\"/\">")
 			inputForm(w, "email", "Email Address", "email")
 			inputForm(w, "password", "Password", "password")
-			inputForm(w, "2FA", "2FA Code", "2FACode")
+			inputForm(w, "2FA", "2FA Code", "text")
 			fmt.Fprintf(w, "  <input type=\"submit\" value=\"Submit\">")
 			fmt.Fprintf(w, "</form>")
 			fmt.Fprintf(w, "</div")
@@ -683,9 +683,9 @@ func main() {
 			// Conditional statement to validate input
 			if inputEmail == "" && inputPassword == "" && input2FA == "" {
 			} else if validationEmail == false {
-				textBox(w, "Please enter a valid email address, max 320 charecters length")
+				textBox(w, "Please enter a valid email address, max 320 characters in length")
 			} else if validationPassword == false {
-				textBox(w, "Password needs to be between 16-32 charecters length")
+				textBox(w, "Password needs to be between 16-32 characters in length")
 			} else if validation2FA == false {
 				textBox(w, "MFA code needs to be a 6 digit number")
 			} else if inputEmail == envEmail {
@@ -763,14 +763,14 @@ func main() {
 				}
 
 				fmt.Fprintf(w, startHTML)
-				messageTable(w, "/", "Click to login & view MFA account(s)", "Enter email, password, MFA account<br>name, MFA secret key, select SHA &<br>enter 2FA code to add a new account")
+				messageTable(w, "/", "Click to login & view MFA account(s)", "Enter email, password, MFA account<br>name, MFA secret key, select SHA &<br>enter 2FA code to add a new account.<br>Commas (,) not allowed.")
 				fmt.Fprintf(w, "<br>")
 				fmt.Fprintf(w, "<div>")
 				fmt.Fprintf(w, "<form method=\"POST\" action=\"/add-account\">")
 				inputForm(w, "email", "Email Address", "email")
 				inputForm(w, "password", "Password", "password")
-				inputForm(w, "account", "New MFA Account Name", "AccountName")
-				inputForm(w, "MFA", "New MFA Secret Key", "secretKey")
+				inputForm(w, "account", "New MFA Account Name", "text")
+				inputForm(w, "MFA", "New MFA Secret Key", "text")
 				fmt.Fprintf(w, "  <label for=\"SHA\"><b>Secure Hash Algorithm (SHA):<br>(SHA1 is Default)</b>")
 				fmt.Fprintf(w, "  </label><br>")
 				fmt.Fprintf(w, "  <select id=\"SHA\" name=\"SHA\">")
@@ -781,7 +781,7 @@ func main() {
 				fmt.Fprintf(w, "  </select>")
 				fmt.Fprintf(w, "<br>")
 				fmt.Fprintf(w, "<br>")
-				inputForm(w, "2FA", "2FA Code", "2FACode")
+				inputForm(w, "2FA", "2FA Code", "text")
 				fmt.Fprintf(w, "  <input type=\"submit\" value=\"Submit\">")
 				fmt.Fprintf(w, "</form>")
 				fmt.Fprintf(w, "</div")
@@ -808,15 +808,15 @@ func main() {
 				// Conditional statement to validate input
 				if inputEmail == "" && inputPassword == "" && inputAccount == "" && inputMFA == "" && inputSHA == "" && input2FA == "" {
 				} else if validationEmail == false {
-					textBox(w, "Please enter a valid email address, max 320 charecters length")
+					textBox(w, "Please enter a valid email address, max 320 characters in length")
 				} else if validationPassword == false {
-					textBox(w, "Password needs to be between 16-32 charecters length")
+					textBox(w, "Password needs to be between 16-32 characters in length")
 				} else if validationAccount == false {
-					textBox(w, "Please enter a valid account name, max 100 charecters length")
+					textBox(w, "Please enter a valid account name, max 100 characters in length")
 				} else if validationMFA == false {
-					textBox(w, "New MFA secret key needs to be between 10-200 charecters ")
+					textBox(w, "MFA secret key needs to be between 16-128 characters")
 				} else if validationSHA == false {
-					textBox(w, "Secure Hash Algorithm can be SHA1, SHA256 or SHA512")
+					textBox(w, "Secure Hash Algorithm (SHA) can be SHA1, SHA256 or SHA512")
 				} else if validation2FA == false {
 					textBox(w, "2FA code needs to be a 6 digit number")
 				} else if inputEmail == envEmail {
