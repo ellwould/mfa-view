@@ -168,14 +168,14 @@ func validateInput(value string, valueType string) (validation bool) {
 			return
 		}
 	} else if valueType == "hashedPassword" {
-                validateInputErr := validateInput.Var(value, "required,min=60,max=60")
-                if validateInputErr != nil {
-                        validation = false
-                        return
-                } else {
-                        validation = true
-                        return
-                }	
+		validateInputErr := validateInput.Var(value, "required,min=60,max=60")
+		if validateInputErr != nil {
+			validation = false
+			return
+		} else {
+			validation = true
+			return
+		}
 	} else if valueType == "2FACode" {
 		validateInputErr := validateInput.Var(value, "number,required,min=6,max=6")
 		if validateInputErr != nil {
@@ -186,14 +186,14 @@ func validateInput(value string, valueType string) (validation bool) {
 			return
 		}
 	} else if valueType == "secretKey" {
-                validateInputErr := validateInput.Var(value, "required,min=16,max=128")
-                if validateInputErr != nil {
-                        validation = false
-                        return
-                } else {
-                        validation = true
-                        return
-                }
+		validateInputErr := validateInput.Var(value, "required,min=16,max=128")
+		if validateInputErr != nil {
+			validation = false
+			return
+		} else {
+			validation = true
+			return
+		}
 	} else if valueType == "accountName" {
 		validateInputErr := validateInput.Var(value, "required,min=1,max=100,excludes=0x2C")
 		if validateInputErr != nil {
@@ -282,7 +282,7 @@ func invalidEnvCLI(message string) {
 // Function to terminate the program with exit code 0 to indicate there were no errors
 func exitProgramCLI() {
 	clearScreen()
-	messageBoxCLI(bgBlue, textBoldWhite, "Program exited.")
+	messageBoxCLI(bgBlue, textBoldWhite, "Program exited ")
 	fmt.Println("")
 	os.Exit(0)
 }
@@ -290,7 +290,7 @@ func exitProgramCLI() {
 // Function to inform the user of wrong input and waits for user to press enter/return key
 func invalidInputCLI() {
 	clearScreen()
-	messageBoxCLI(bgRed, textBoldWhite, "Invalid input press enter/return to continue.")
+	messageBoxCLI(bgRed, textBoldWhite, "Invalid input press enter/return to continue ")
 	fmt.Scanln()
 }
 
@@ -335,7 +335,7 @@ func gen2FAKey() (string, string) {
 func addEmailCLI() {
 	clearScreen()
 	typeExitCLI()
-	messageBoxCLI(bgCyan, textBoldWhite, "Email address is required")
+	messageBoxCLI(bgCyan, textBoldWhite, "Email address is required - no commas (,) allowed")
 	messageBoxCLI(bgRed, textBoldWhite, "Email address can be manually changed later in "+mfaViewEnv)
 	fmt.Println(textBoldBlack)
 	fmt.Printf("   Please enter an email address between 6-320\n   characters: ")
@@ -357,12 +357,12 @@ func addEmailCLI() {
 func addPasswordCLI() {
 	clearScreen()
 	typeExitCLI()
-	messageBoxCLI(bgPurple, textBoldWhite, "A password is required ")
+	messageBoxCLI(bgPurple, textBoldWhite, "A password is required - no commas (,) allowed ")
 	fmt.Println(bgRed + textBoldWhite)
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(" □                                                                                                               □ ")
 	fmt.Println(" □                           The password stored on the disk will be hashed and salted                           □ ")
-	fmt.Println(" □   The password will be used to encrypt & decrypt Multi-factor authentication (MFA) secret keys on the disk.   □ ")
+	fmt.Println(" □   The password will be used to encrypt & decrypt Multi-factor authentication (MFA) secret keys on the disk    □ ")
 	fmt.Println(" □     A lost password will result in unreadable Multi-factor authentication (MFA) secret keys on the disk!      □ ")
 	fmt.Println(" □      Store the password securly, do not lose the password, there is no way to recover a lost password!!       □ ")
 	fmt.Println(" □                                                                                                               □ ")
@@ -387,7 +387,7 @@ func addPasswordCLI() {
 		addPasswordCLI()
 	} else if addPassword != checkPassword {
 		clearScreen()
-		messageBoxCLI(bgRed, textBoldWhite, "Passwords entered do not match, press enter/return to continue.")
+		messageBoxCLI(bgRed, textBoldWhite, "Passwords entered do not match, press enter/return to continue ")
 		fmt.Scanln()
 		addPasswordCLI()
 	} else {
@@ -422,8 +422,8 @@ func add2FACLI() {
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(" □                                                                                                   □ ")
 	fmt.Println(" □                  MFA View aims to be as secure as possible, it requires another                   □ ")
-	fmt.Println(" □           authenticator app to provide a 2FA (Two-Factor Authentication) code to login.           □ ")
-	fmt.Println(" □    The 2FA secret key can be manually changed later in " + mfaViewEnv + ".    □ ")
+	fmt.Println(" □           authenticator app to provide a 2FA (Two-Factor Authentication) code to login            □ ")
+	fmt.Println(" □    The 2FA secret key can be manually changed later in " + mfaViewEnv + "     □ ")
 	fmt.Println(" □                                                                                                   □ ")
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(resetColour + textBoldBlack)
@@ -470,14 +470,13 @@ func createPassword2FACLI() {
 // Recursive function to change an existing known password
 func changePasswordCLI(envPassword string) {
 	clearScreen()
+	typeExitCLI()
 	fmt.Println(bgRed + textBoldWhite)
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(" □                                                                   □ ")
 	fmt.Println(" □      The change_password option is set to yes in mfaview.env      □ ")
-	fmt.Println(" □                                                                   □ ")
 	fmt.Println(" □    To change the password the exisitng password must be known     □ ")
-	fmt.Println(" □                                                                   □ ")
-	fmt.Println(" □                  (Type \"exit\" to quit program)                    □ ")
+	fmt.Println(" □  New password must be 16-32 charecters & not contain a comma (,)  □ ")
 	fmt.Println(" □                                                                   □ ")
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(resetColour)
@@ -490,10 +489,12 @@ func changePasswordCLI(envPassword string) {
 	if currentPassword == "exit" || currentPassword == "Exit" || currentPassword == "EXIT" {
 		exitProgramCLI()
 	} else if validationCurrentPassword == false {
+		clearScreen()
 		messageBoxCLI(bgRed, textBoldWhite, "Current password needs to be 16-32 charecters, press enter/return to continue")
 		fmt.Scanln()
 		changePasswordCLI(envPassword)
 	} else if correctPassword == false {
+		clearScreen()
 		messageBoxCLI(bgRed, textBoldWhite, "Password incorrect ")
 		fmt.Scanln()
 		changePasswordCLI(envPassword)
@@ -506,6 +507,7 @@ func changePasswordCLI(envPassword string) {
 	if newPassword == "exit" || newPassword == "Exit" || newPassword == "EXIT" {
 		exitProgramCLI()
 	} else if validationNewPassword == false {
+		clearScreen()
 		messageBoxCLI(bgRed, textBoldWhite, "New password needs to be 16-32 charecters, press enter/return to continue")
 		fmt.Scanln()
 		changePasswordCLI(envPassword)
@@ -518,13 +520,14 @@ func changePasswordCLI(envPassword string) {
 	if newPasswordCheck == "exit" || newPasswordCheck == "Exit" || newPasswordCheck == "EXIT" {
 		exitProgramCLI()
 	} else if validationNewPasswordCheck == false {
+		clearScreen()
 		messageBoxCLI(bgRed, textBoldWhite, "New re-entered password needs to be 16-32 charecters, press enter/return to continue")
 		fmt.Scanln()
 		changePasswordCLI(envPassword)
 	}
 	if newPassword != newPasswordCheck {
 		clearScreen()
-		messageBoxCLI(bgRed, textBoldWhite, "New passwords entered do not match, press enter/return to continue.")
+		messageBoxCLI(bgRed, textBoldWhite, "New passwords entered do not match, press enter/return to continue ")
 		fmt.Scanln()
 		changePasswordCLI(envPassword)
 	}
@@ -622,7 +625,7 @@ func main() {
 	} else if env2FAKey == "2fa_not_set" {
 		add2FACLI()
 	} else if validationEnvPassword == false {
-		invalidEnvCLI("Password stored in " + mfaViewEnv + " is invalid")
+		invalidEnvCLI("Password stored in " + mfaViewEnv + " is invalid ")
 	} else if validationEnv2FA == false {
 		invalidEnvCLI("2FA secret key stored stored in " + mfaViewEnv + " is invalid")
 	} else if envAddress != "localhost" {
