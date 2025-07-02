@@ -146,11 +146,11 @@ func inputForm(w http.ResponseWriter, value string, labelMessage string, inputTy
 }
 
 // Function to validate user input utlising the Go Validator package
-func validateInput(formValue string, valueType string) (validation bool) {
+func validateInput(value string, valueType string) (validation bool) {
 	validateInput := validator.New()
 	// Conditional statments are used for each type of value inputted from a user
 	if valueType == "email" {
-		validateInputErr := validateInput.Var(formValue, "email,required,min=6,max=320")
+		validateInputErr := validateInput.Var(value, "email,required,min=6,max=320,excludes=0x2C")
 		if validateInputErr != nil {
 			validation = false
 			return
@@ -159,7 +159,7 @@ func validateInput(formValue string, valueType string) (validation bool) {
 			return
 		}
 	} else if valueType == "password" {
-		validateInputErr := validateInput.Var(formValue, "required,min=16,max=32")
+		validateInputErr := validateInput.Var(value, "required,min=16,max=32,excludes=0x2C")
 		if validateInputErr != nil {
 			validation = false
 			return
@@ -167,8 +167,17 @@ func validateInput(formValue string, valueType string) (validation bool) {
 			validation = true
 			return
 		}
-	} else if valueType == "2FA" {
-		validateInputErr := validateInput.Var(formValue, "number,required,min=6,max=6")
+	} else if valueType == "hashedPassword" {
+                validateInputErr := validateInput.Var(value, "required,min=60,max=60")
+                if validateInputErr != nil {
+                        validation = false
+                        return
+                } else {
+                        validation = true
+                        return
+                }	
+	} else if valueType == "2FACode" {
+		validateInputErr := validateInput.Var(value, "number,required,min=6,max=6")
 		if validateInputErr != nil {
 			validation = false
 			return
@@ -176,8 +185,17 @@ func validateInput(formValue string, valueType string) (validation bool) {
 			validation = true
 			return
 		}
-	} else if valueType == "text" {
-		validateInputErr := validateInput.Var(formValue, "required,min=10,max=200")
+	} else if valueType == "secretKey" {
+                validateInputErr := validateInput.Var(value, "required,min=16,max=128")
+                if validateInputErr != nil {
+                        validation = false
+                        return
+                } else {
+                        validation = true
+                        return
+                }
+	} else if valueType == "accountName" {
+		validateInputErr := validateInput.Var(value, "required,min=1,max=100,excludes=0x2C")
 		if validateInputErr != nil {
 			validation = false
 			return
@@ -186,7 +204,7 @@ func validateInput(formValue string, valueType string) (validation bool) {
 			return
 		}
 	} else if valueType == "IP" {
-		validateInputErr := validateInput.Var(formValue, "required,ip_addr")
+		validateInputErr := validateInput.Var(value, "required,ip_addr")
 		if validateInputErr != nil {
 			validation = false
 			return
@@ -257,6 +275,7 @@ func messageBoxCLI(bgColour string, messageColour string, message string) {
 func invalidEnvCLI(message string) {
 	clearScreen()
 	messageBoxCLI(bgRed, textBoldWhite, message)
+	fmt.Println("")
 	os.Exit(0)
 }
 
@@ -411,7 +430,7 @@ func add2FACLI() {
 	fmt.Printf("      Please enter the 6 digit generated\n      code from the your other 2FA/MFA app: ")
 	var test2FACode string
 	fmt.Scan(&test2FACode)
-	validationTest2FACode := validateInput(test2FACode, "2FA")
+	validationTest2FACode := validateInput(test2FACode, "2FACode")
 	fmt.Println("")
 	if test2FACode == "exit" || test2FACode == "Exit" || test2FACode == "EXIT" {
 		exitProgramCLI()
@@ -424,6 +443,7 @@ func add2FACLI() {
 			clearScreen()
 			replaceText("2fa_not_set", generated2FAKey)
 			messageBoxCLI(bgGreen, textBoldWhite, "Successfully added 2FA secret key")
+			fmt.Println("")
 			os.Exit(0)
 		} else {
 			clearScreen()
@@ -462,7 +482,7 @@ func changePasswordCLI(envPassword string) {
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(resetColour)
 	var currentPassword string
-	fmt.Println(textBoldBlack)
+	fmt.Printf(textBoldBlack)
 	fmt.Printf("      Please enter current password: ")
 	fmt.Scan(&currentPassword)
 	validationCurrentPassword := validateInput(currentPassword, "password")
@@ -527,7 +547,10 @@ func changePasswordCLI(envPassword string) {
 
 	newHashedPassword := genPassword([]byte(zeroPad(newPassword)))
 	replaceText(envPassword, newHashedPassword)
-	exitProgramCLI()
+	clearScreen()
+	messageBoxCLI(bgGreen, textBoldWhite, "Successfully updated password")
+	fmt.Println("")
+	os.Exit(0)
 }
 
 // Function to generate passcode from MFA secret key
@@ -581,6 +604,8 @@ func main() {
 	envAddAccount := os.Getenv("add_account_page")
 
 	validationEnvEmail := validateInput(envEmail, "email")
+	validationEnvPassword := validateInput(envPassword, "hashedPassword")
+	validationEnv2FA := validateInput(env2FAKey, "secretKey")
 	validationEnvAddress := validateInput(envAddress, "IP")
 
 	envPortInt, err := strconv.Atoi(envPort)
@@ -596,6 +621,10 @@ func main() {
 		createPassword2FACLI()
 	} else if env2FAKey == "2fa_not_set" {
 		add2FACLI()
+	} else if validationEnvPassword == false {
+		invalidEnvCLI("Password stored in " + mfaViewEnv + " is invalid")
+	} else if validationEnv2FA == false {
+		invalidEnvCLI("2FA secret key stored stored in " + mfaViewEnv + " is invalid")
 	} else if envAddress != "localhost" {
 		if validationEnvAddress == false {
 			invalidEnvCLI("Address in " + mfaViewEnv + " must be a valid Internet Protocol (IP) address or localhost")
@@ -630,7 +659,7 @@ func main() {
 			fmt.Fprintf(w, "<form method=\"POST\" action=\"/\">")
 			inputForm(w, "email", "Email Address", "email")
 			inputForm(w, "password", "Password", "password")
-			inputForm(w, "2FA", "2FA Code", "text")
+			inputForm(w, "2FA", "2FA Code", "2FACode")
 			fmt.Fprintf(w, "  <input type=\"submit\" value=\"Submit\">")
 			fmt.Fprintf(w, "</form>")
 			fmt.Fprintf(w, "</div")
@@ -646,7 +675,7 @@ func main() {
 			// Validate email address, password and 2FA
 			validationEmail := validateInput(inputEmail, "email")
 			validationPassword := validateInput(inputPassword, "password")
-			validation2FA := validateInput(input2FA, "2FA")
+			validation2FA := validateInput(input2FA, "2FACode")
 
 			// Conditional statement to validate input
 			if inputEmail == "" && inputPassword == "" && input2FA == "" {
@@ -737,8 +766,8 @@ func main() {
 				fmt.Fprintf(w, "<form method=\"POST\" action=\"/add-account\">")
 				inputForm(w, "email", "Email Address", "email")
 				inputForm(w, "password", "Password", "password")
-				inputForm(w, "account", "New MFA Account Name", "text")
-				inputForm(w, "MFA", "New MFA Secret Key", "text")
+				inputForm(w, "account", "New MFA Account Name", "AccountName")
+				inputForm(w, "MFA", "New MFA Secret Key", "secretKey")
 				fmt.Fprintf(w, "  <label for=\"SHA\"><b>Secure Hash Algorithm (SHA):<br>(SHA1 is Default)</b>")
 				fmt.Fprintf(w, "  </label><br>")
 				fmt.Fprintf(w, "  <select id=\"SHA\" name=\"SHA\">")
@@ -749,7 +778,7 @@ func main() {
 				fmt.Fprintf(w, "  </select>")
 				fmt.Fprintf(w, "<br>")
 				fmt.Fprintf(w, "<br>")
-				inputForm(w, "2FA", "2FA Code", "text")
+				inputForm(w, "2FA", "2FA Code", "2FACode")
 				fmt.Fprintf(w, "  <input type=\"submit\" value=\"Submit\">")
 				fmt.Fprintf(w, "</form>")
 				fmt.Fprintf(w, "</div")
@@ -768,10 +797,10 @@ func main() {
 				// Returns false or true based on if input is valid
 				validationEmail := validateInput(inputEmail, "email")
 				validationPassword := validateInput(inputPassword, "password")
-				validationAccount := validateInput(inputAccount, "text")
-				validationMFA := validateInput(inputMFA, "text")
+				validationAccount := validateInput(inputAccount, "accountName")
+				validationMFA := validateInput(inputMFA, "secretKey")
 				validationSHA := slices.Contains(shaList, inputSHA)
-				validation2FA := validateInput(input2FA, "2FA")
+				validation2FA := validateInput(input2FA, "2FACode")
 
 				// Conditional statement to validate input
 				if inputEmail == "" && inputPassword == "" && inputAccount == "" && inputMFA == "" && inputSHA == "" && input2FA == "" {
