@@ -48,7 +48,7 @@ mkdir -p /etc/mfaview/{html-css,key};
 
 # Copy HTML/CSS start and end files
 
-cp /root/mfaview/html-css/* /etc/mfaview/html-css/;
+cp /root/mfa-view/html-css/* /etc/mfaview/html-css/;
 
 # Copy MFA View configuration file
 
