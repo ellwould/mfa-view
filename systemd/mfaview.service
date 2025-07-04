@@ -1,0 +1,11 @@
+[Unit]
+Description=MFA View
+
+[Service]
+User=mfaview
+Group=mfaview
+Type=simple
+ExecStart=/usr/bin/mfaview
+
+[Install]
+WantedBy=multi-user.target
