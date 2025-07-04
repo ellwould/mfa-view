@@ -882,3 +882,6 @@ func main() {
 	// Start server on port specified above
 	log.Fatal(http.ListenAndServe(socket, nil))
 }
+
+// Contributor(s):
+// Elliot Michael Keavney
