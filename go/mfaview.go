@@ -447,7 +447,7 @@ func add2FACLI() {
 	fmt.Println(" □                                                                                                   □ ")
 	fmt.Println(" □                  MFA View aims to be as secure as possible, it requires another                   □ ")
 	fmt.Println(" □           authenticator app to provide a 2FA (Two-Factor Authentication) code to login            □ ")
-	fmt.Println(" □    The 2FA secret key can be manually changed later in " + mfaViewEnv + "     □ ")
+	fmt.Println(" □    The 2FA secret key can be manually changed later in " + mfaViewEnv + "                   □ ")
 	fmt.Println(" □                                                                                                   □ ")
 	fmt.Println(" □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ □ ")
 	fmt.Println(resetColour + textBoldBlack)
