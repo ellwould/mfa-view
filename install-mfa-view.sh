@@ -44,7 +44,7 @@ rm -rf /usr/local/go && tar -C /usr/local -xzf go1.24.4.linux-amd64.tar.gz;
 
 # Create directores used for HTML/CSS, configuration and CSV key file
 
-mkdir -p /etc/mfaview{html-css,key};
+mkdir -p /etc/mfaview/{html-css,key};
 
 # Copy HTML/CSS start and end files
 
@@ -56,7 +56,7 @@ cp /root/mfa-view/env/mfaview.env /etc/mfaview/mfaview.env
 
 # Copy key file
 
-cp /root/mfa-view/key/mfaview-key.csv /etc/mfaview-key.csv
+cp /root/mfa-view/key/mfaview-key.csv /etc/mfaview/key/mfaview-key.csv
 
 # Create Go directories in root home directory for compiling the source code
 
