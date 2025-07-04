@@ -22,16 +22,16 @@ import (
 )
 
 // Constant for mfaview.env absolute path
-const mfaViewEnv string = "/etc/mfaview/env/mfaview.env"
+const mfaViewEnv string = "/etc/mfaview/mfaview.env"
 
 // Constant for directory path that contains the file key.csv
 const dirKeyCSV string = "/etc/mfaview/key"
 
 // Constant for key.csv file
-const fileKeyCSV string = "key.csv"
+const fileKeyCSV string = "mfaview-key.csv"
 
 // Constant for directory path that contains the files mfaview-start.html and mfaview-end.html
-const dirHTML string = "/etc/mfaview/html"
+const dirHTML string = "/etc/mfaview/html-css"
 
 // Constant for fileStartHTML file
 const fileStartHTML string = "mfaview-start.html"
