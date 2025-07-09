@@ -2,6 +2,10 @@
 
 ### A Go HTTP program to generate MFA codes from a stored secret key and can also add a new MFA key.
 
+#### (Built using operating system - Ubuntu 22.04.5 LTS)
+
+<br>
+
 #### MFA View can be installed easily with the BASH script - [install-mfa-view.sh](https://github.com/ellwould/mfa-view/blob/main/install-mfa-view.sh)
 
 #### MFA View can be un-installed easily with the BASH script - [uninstall-mfa-view.sh](https://github.com/ellwould/mfa-view/blob/main/uninstall-mfa-view.sh)
