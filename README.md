@@ -56,6 +56,7 @@ A Go HTTP program to generate MFA codes from a stored secret key and can also ad
 ![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_creating_a_password.png)
 
 ### Generating a 2FA secret key:
+#### (Secret key generated - IHJU2OCCJCGAH5CMTSIBPU66SVLDVIRV)
 
 ![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_2FA_Secret_key.png)
 
