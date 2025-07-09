@@ -1,28 +1,39 @@
 # MFA View
 
-## (IN DEVELOPMENT)
-
 A Go HTTP program to generate MFA codes from a stored secret key and can also add a new MFA key.
 
 ---
 
-## HTTP:
+## Website:
 
 ### Login page:
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/login.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_login_page.png)
 
-### Add MFA acount page:
+### Logging in with no MFA accounts present:
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/add_MFA_account_webpage.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_no_MFA_accounts_added.png)
 
-### Add MFA account page switched off in configuration file:
+### Adding a MFA acount:
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/add_MFA_account_webpage_off.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_adding_a_MFA_account.png)
 
-### Password validation on login page:
+### Logging in with a MFA account present:
+#### (Java Script used to create a copy to clipboard button)
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/webpage_validation_password.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_new_MFA_code_avaiable.png)
+
+### Add MFA account page switched off in the configuration file:
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_account_page_switched_off.png)
+
+### Examples of validation on the login page:
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_wrong_details_entered.png)
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_password_entered_wrong_length.png)
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_no_2FA_entered.png)
 
 ---
 
