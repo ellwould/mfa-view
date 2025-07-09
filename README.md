@@ -1,67 +1,105 @@
 # MFA View
 
-## (IN DEVELOPMENT)
-
 A Go HTTP program to generate MFA codes from a stored secret key and can also add a new MFA key.
 
 ---
 
-## HTTP:
+## Website:
 
 ### Login page:
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/login.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_login_page.png)
 
-### Add MFA acount page:
+### Logging in with no MFA accounts present:
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/add_MFA_account_webpage.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_no_MFA_accounts_added.png)
 
-### Add MFA account page switched off in configuration file:
+### Adding a MFA acount:
+#### (In this example I generated a random secret key for the purpose of demonstrating - V2J6E2BTG3LPGRWB63CVCKXXRGENYS3K)
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/add_MFA_account_webpage_off.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_adding_a_MFA_account.png)
 
-### Password validation on login page:
+### Logging in with a MFA account present:
+#### (Java Script used to create a copy to clipboard button)
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/webpage_validation_password.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_new_MFA_code_avaiable.png)
+
+### Screenshot of he mfaview-key.csv file (located in /etc/mfaview/key) showing the secret key is encrypted:
+#### (AES encryption used)
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_encrypted_secret_key.png)
+
+### Add MFA account page switched off in the configuration file:
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_account_page_switched_off.png)
+
+### Examples of validation on the login page:
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_wrong_details_entered.png)
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_password_entered_wrong_length.png)
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_no_2FA_entered.png)
 
 ---
 
 ## CLI:
 
 ### Adding an email address:
+#### (demo@ell.today was used)
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/adding_user_email.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_creating_an_email.png)
 
-### Adding a password (example password is "passwordpasswordpassword"):
+### Adding a password:
+#### (Easy example password used was "passwordpasswordpassword1$"):
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/adding_user_password.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_creating_a_password.png)
 
 ### Generating a 2FA secret key:
+#### (Secret key generated - IHJU2OCCJCGAH5CMTSIBPU66SVLDVIRV)
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/2FA_secret_key_validation.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_2FA_Secret_key.png)
 
-### Adding the secret key to a 3rd party application:
+### 2FA secret key embedded inside a Quick Response (QR) code for a 3rd party authenticator app to scan:
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/adding_2FA_secret_key_to_3rd_party_authenticator_app.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_Quick_Response_QR_code.png)
 
 ### 3rd party application generating 2FA code:
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/2FA_code_generated_in_3rd_party_app.jpg)
+![image]()
+
+### MFA View checks the 2FA code generated from a 3rd party authenticator app is correct before adding the secret key to the configuration file:
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_2FA_check_code.png)
 
 ### MFA View informing the user the 2FA secret key has been added to the configuration file:
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/2FA_secret_key_added_to_configuration_file.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_message_2FA_correct.png)
 
 ### Example of configuration file (password is hashed and salted):
 
-![image](https://github.com/Ellwould/mfa-view/blob/main/image/example_configuration_file.jpg)
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_configuration_file_after_account_setup.png)
 
-<br>
+### Systemd after MFA View was installed but before account setup:
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_systemctl_before_adding_an_account.png)
+
+### Systemd after account setup is complete:
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_systemctl_after_adding_an_account.png)
+
+### Examples of validation when creating an account:
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_invalid_input.png)
+
+![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_password_does_not_match.png)
+
+---
 
 >[!NOTE]
 >For a list of abbreviations and there meanings used throughout this repository please refer to this [README](https://github.com/Ellwould/information_technology_and_telecommunication_abbreviations)
 
----
+<br>
 
 > [!IMPORTANT]
 > All third-party product and/or company names and logos are trademarks™ or registered® trademarks and remain the property of their respective holders/owners. Unless specifically identified as such, use of third party trademarks does not imply any affiliation with or endorsement between Elliot Michael Keavney and the owners of those trademarks.
