@@ -1,6 +1,7 @@
 # MFA View
 
 ### A Go HTTP program to generate MFA codes from a stored secret key and can also add a new MFA key.
+### MFA keys are encrypted and the user's password is hashed and salted.
 
 #### (Built using operating system - Ubuntu 22.04.5 LTS)
 
