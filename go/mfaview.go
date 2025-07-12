@@ -642,10 +642,8 @@ func main() {
 
 	if envPortInt <= 0 || envPortInt >= 65536 {
 		invalidEnvCLI("Port number in " + mfaViewEnv + " must be between 1 and 65535")
-	} else if envAddress != "localhost" {
-		if validationEnvAddress == false {
-			invalidEnvCLI("Address in " + mfaViewEnv + " must be a valid Internet Protocol (IP) address or localhost")
-		}
+	} else if validationEnvAddress == false && envAddress != "localhost" {
+		invalidEnvCLI("Address in " + mfaViewEnv + " must be a valid Internet Protocol (IP) address or localhost")
 	} else if envEmail == "email_not_set" && envPassword == "password_not_set" && env2FAKey == "2fa_not_set" {
 		createUserCLI()
 	} else if validationEnvEmail == false {
