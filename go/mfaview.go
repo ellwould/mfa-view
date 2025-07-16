@@ -63,17 +63,17 @@ const fileStartHTML string = "mfaview-start.html"
 // Constant for fileEndHTML file
 const fileEndHTML string = "mfaview-end.html"
 
-// Variable for American National Standards Institute (ANSI) reset colour code
+// Constant for American National Standards Institute (ANSI) reset colour code
 const resetColour string = "\033[0m"
 
-// Variables for American National Standards Institute (ANSI) text colour codes
+// Constants for American National Standards Institute (ANSI) text colour codes
 const (
 	textBoldWhite string = "\033[1;37m"
 	textBoldBlack string = "\033[1;30m"
 	textBoldGreen string = "\033[1;32m"
 )
 
-// Variables for American National Standards Institute (ANSI) background colour codes
+// Constants for American National Standards Institute (ANSI) background colour codes
 
 const (
 	bgBlack  string = "\033[40m"
