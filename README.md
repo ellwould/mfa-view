@@ -6,6 +6,16 @@
 #### (Built using operating system - Ubuntu 22.04.5 LTS)
 
 <br>
+<br>
+
+### Access demo site at https://mfa.ell.today
+#### Demo username is: `demo@ell.today`
+#### Demo password is: `passwordpasswordpassword1$`
+#### Demo 2FA secret key is: `IHJU2OCCJCGAH5CMTSIBPU66SVLDVIRV`
+#### or scan the QR code below for secret key
+
+<br>
+<br>
 
 #### MFA View can be installed easily with the BASH script - [install-mfa-view.sh](https://github.com/ellwould/mfa-view/blob/main/install-mfa-view.sh)
 
@@ -24,7 +34,7 @@
 ![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_no_MFA_accounts_added.png)
 
 ### Adding a MFA acount:
-#### (In this example I generated a random secret key for the purpose of demonstrating - V2J6E2BTG3LPGRWB63CVCKXXRGENYS3K)
+#### (In this example I generated a random secret key for the purpose of demonstrating - `V2J6E2BTG3LPGRWB63CVCKXXRGENYS3K`)
 
 ![image](https://github.com/ellwould/mfa-view/blob/main/image/WEB_adding_a_MFA_account.png)
 
@@ -55,17 +65,17 @@
 ## CLI:
 
 ### Adding an email address:
-#### (demo@ell.today was used)
+#### (`demo@ell.today` was used)
 
 ![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_creating_an_email.png)
 
 ### Adding a password:
-#### (Easy example password used was "passwordpasswordpassword1$"):
+#### (Easy example password used was `passwordpasswordpassword1$`):
 
 ![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_creating_a_password.png)
 
 ### Generating a 2FA secret key:
-#### (Secret key generated - IHJU2OCCJCGAH5CMTSIBPU66SVLDVIRV)
+#### (Secret key generated - `IHJU2OCCJCGAH5CMTSIBPU66SVLDVIRV`)
 
 ![image](https://github.com/ellwould/mfa-view/blob/main/image/CLI_2FA_Secret_key.png)
 
