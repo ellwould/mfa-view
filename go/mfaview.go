@@ -674,7 +674,7 @@ func main() {
 			fmt.Fprintf(w, "    <th><a href=\"https://ell.today\" class=\"tableButton\">Written by Elliot Keavney (Website)</a></th>")
 			fmt.Fprintf(w, "  </tr>")
 			fmt.Fprintf(w, "  <tr>")
-			fmt.Fprintf(w, "    <th><a href=\"https://github.com/Ellwould/mfa-view\" class=\"tableButton\">MFA View Source Code (GitHub)</a></th>")
+			fmt.Fprintf(w, "    <th><a href=\"https://github.com/ellwould/mfa-view\" class=\"tableButton\">MFA View Source Code (GitHub)</a></th>")
 			fmt.Fprintf(w, "  </tr>")
 			fmt.Fprintf(w, "</table>")
 			currentTime := time.Now().Format("15:04:05")
