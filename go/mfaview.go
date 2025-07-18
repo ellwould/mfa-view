@@ -91,39 +91,6 @@ func clearScreen() {
 	fmt.Print("\033[H\033[2J")
 }
 
-// Function to retrieve file contents
-func getFile(rootDirPath string, fileName string) (result string) {
-
-	// Go introduced OpenRoot in version 1.24, it restricts file operations to a single directory
-	rootDir, err := os.OpenRoot(rootDirPath)
-
-	if err != nil {
-		panic("Directory path does not exist")
-	}
-
-	defer rootDir.Close()
-
-	file, err := rootDir.Open(fileName)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-
-	var fileSlice []string
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		fileSlice = append(fileSlice, line)
-	}
-
-	result = strings.Join(fileSlice, "")
-	return result
-}
-
 // Function to empty a file
 func wipeKeyFile() {
 
@@ -614,8 +581,8 @@ var endHTML string
 
 // Main function
 func main() {
-	startHTML = getFile(dirHTML, fileStartHTML)
-	endHTML = getFile(dirHTML, fileEndHTML)
+	startHTML := csvcell.FileData(dirHTML, fileStartHTML)
+	endHTML := csvcell.FileData(dirHTML, fileEndHTML)
 
 	err := godotenv.Load(mfaViewEnv)
 	if err != nil {
