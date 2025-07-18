@@ -17,9 +17,9 @@
 <br>
 <br>
 
-#### MFA View can be installed easily with the BASH script - [install-mfa-view.sh](https://github.com/ellwould/mfa-view/blob/main/install-mfaview.sh)
+#### MFA View can be installed easily with the BASH script - [install-mfaview.sh](https://github.com/ellwould/mfa-view/blob/main/install-mfaview.sh)
 
-#### MFA View can be un-installed easily with the BASH script - [uninstall-mfa-view.sh](https://github.com/ellwould/mfa-view/blob/main/uninstall-mfaview.sh)
+#### MFA View can be un-installed easily with the BASH script - [uninstall-mfaview.sh](https://github.com/ellwould/mfa-view/blob/main/uninstall-mfaview.sh)
 
 ---
 
